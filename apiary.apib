@@ -1,0 +1,437 @@
+FORMAT: 1A
+HOST:  https://eservant.quidinfo.it
+
+# Core services [new Blueprint]
+
+Microservizio che offre le funzionalità core di eServant.
+
+# Group Events  
+
+## /core/events 
+
+### GET
+
+Ritorna la lista di tutti gli eventi memorizzati nel sistema. 
+La richiesta non ha vincoli particolari di formato. 
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+ + Attributes (CEEventListRes)
+ 
+
+## /core/events/{id}
+
+### GET
+
+Restituisce l'evento corrispondente all' `id` è passato.
+
+Se l'id passato non esiste ritorna un errore.
+
++ Parameters
+    + id (number, required) - identificativo dell'evento 
+
++ Request (application/json)
+    + Parameters
+        + id: 2
+        
++ Response 200 (application/json)
+
+    + Attributes (CEEventRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+
+## /core/events/users/{username}
+      
+### GET 
+
+Ritorna gli eventi correnti o futuri associati all'utente.
+Componendo invece una request priva di username parameter o non ancora registrato al sistema, viene ritornato un messaggio d'errore, ad ora, generico.
+
++ Parameters
+    + username - username dell'utente di cui si intende reperire gli eventi 
+
++ Request (application/json)
+    + Parameters
+        + username: rossi.mario@gmail.com
+
++ Response 200 (application/json)
+
+    + Attributes (CEEventListRes)
+
++ Response 500 (application/json)
+    
+    + Attributes (CE230Error)
+
+## /core/events/suggestions
+
+### GET
+
+Restituisce la lista dei ***primi 10*** eventi ordinati in base alla combinazione di parametri data in input.
+I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventType`, `timeFrom` e `timeTo`.
+
+
++ Attributes
+    + Shortname: "Master in IoT" (string, required) - nome dell'evento 
+    + Eventtype: "Corso di laurea" (string, optional) - tipo di evento
+    + Timefrom: `2018-10-01T08:30:00.603Z` (string, optional) - ora di inizio
+    + Timeto: `2018-10-12T15:30:00.603Z` (string, optional) - ora di fine
+
++ Response 200 (application/json)
+
+    + Attributes (CEEventListRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+## /core/associate/events/{id}/users/{username}
+
+### PUT
+
+Associa l'evento, il cui `id` è fornito in input, allo user, con `username` passato.
+Ritorna i dati dell'evento appena associato. 
+
+
++ Parameters
+    + id: 80677375 (number, required) - identificativo dell'evento che si intende associare all'utente
+   
+    + username: cj@quidinfo.it (string, required) - identificativo dell'utente che si intende 
+                                                    associare all'evento
+    
++ Request (application/json)
+
+    + Parameters
+        + username: cj@quidinfo.it 
+        + id: 80677375
+        
++ Response 200 (application/json)
+    
+     + Attributes (CEEventRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+## /core/share/events/{id}/users/{username}
+
+### PUT
+
+Condivide l'evento `id` sul profilo social di user `username`. 
+Il profilo social viene specificato nel corpo della request, insieme ai dati dell'evento. 
+Ritorna i dati dell'evento appena condiviso.
+
++ Parameters
+    + id: 80677375 (number, required) - identificativo dell'evento che si intende associare all'utente
+   
+    + username: cj@quidinfo.it (string, required) - identificativo dell'utente che esegue la 
+                                                    condivisione
+                                                    
++ Request (application/json)
+
+    + Parameters
+        + username: cj@quidinfo.it 
+        + id: 80677375
+    + Attributes (CEEventReq)
+
++ Response 200 (application/json)
+    
+     + Attributes (CEEventRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+# Group Notifications
+
+### Campi notifica:
+
+## /core/notifications 
+
+### GET
+
+Ritorna la lista di tutte le notifiche. 
+La richiesta non ha vincoli particolari di formato.
+
+
++ Response 200 (application/json)
+
+     + Attributes (CEEventListRes)
+
+
+## /core/notificationActions/{id}
+### PUT 
+
+Processa operazione richiesta il cui `id` è passato in input, ritornando `payload` in input. 
+Eventuali dati da passare devono far parte del `payload`.
+Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+
++ Parameters
+    + id - identificativo dell' azione da effettuare, in risposta di una notifica 
+
++ Request (application/json)
+    + Parameters
+        + id: 10
+    + Attributes (CENotificationActionReq)
+        
++ Response 200 (application/json)
+
+    + Attributes (CENotificationActionRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+
+# Group Facilities
+
+## /core/facilities
+
+### GET
+
+Ritorna la lista di tutti gli impianti.
+La richiesta non ha vincoli particolari formato.
+
++ Response 200 (application/json)
+  
+    + Attributes (CEFacilityListRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+
+## /core/facilities/{id}
+      
+### GET 
+
+Ritorna la facility identificata dall'id in input.
+Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+
++ Parameters
+    + id - identificativo della facility che si necessita 
+
++ Request (application/json)
+    + Parameters
+        + id: 80677375
+
++ Response 200 (application/json)
+
+    + Attributes (CEFacilityRes)
+        
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+## /core/follow/facilities/{id}/users/{username}
+
+### PUT
+
+Esegue l'associazione di tutti gli eventi attuali e futuri, relativi alla facility il cui `id` viene passato,
+allo user specificato da `username`. Ritorna la lista degli eventi associati alla facility.
+
++ Parameters
+    + id: 80677375 (number, required) - identificativo dell'impsianto che viene associato all'utente
+   
+    + username: cj@quidinfo.it (string, required) - identificativo dell'utente a cui l'impianto, 
+                                                    cioè tutti i suoi eventi, viene associato
+    
++ Request (application/json)
+    + Parameters
+        + username: cj@quidinfo.it 
+        + id: 80677375
+
++ Response 200 (application/json)
+
+    + Attributes (CEEventListRes)
+    
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+# Group Agenda
+    
+## /core/agenda/events/{id}
+
+### GET
+
+Restituisce il programma di un evento.
+Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+
++ Parameters
+    + id - identificativo del programma di evento che si necessita 
+
++ Request (application/json)
+    + Parameters
+        + id: 24146414
+
++ Response 200 (application/json)
+
+    + Attributes (CEAgendaRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+## Data Structures
+
+### CEEventReq
++ metadata (MessagesSuccess)
++ payload (EventShare)
+
+### CEEventRes
++ metadata (MessagesSuccess)
++ payload (EventRes)
+
+### CEEventListRes
++ metadata (MessagesSuccess)
++ payload (array[EventRes, EventRes, EventRes])
+
+### CENotificationListRes
++ metadata (MessagesSuccess)
++ payload (array[NotificationRes, NotificationRes])
+
+### CENotificationActionReq
++ metadata (MessagesSuccess)
++ payload (NotificationActionReq)
+
+### CENotificationActionRes
++ metadata (MessagesSuccess)
++ payload (NotificationActionRes)
+
+### CEFacilityRes
++ metadata (MessagesSuccess)
++ payload (FacilityRes1)
+
+### CEFacilityListRes
++ metadata (MessagesSuccess)
++ payload (array[FacilityRes1, FacilityRes2])
+
+### CEAgendaRes
++ metadata (MessagesSuccess)
++ payload (AgendaRes)
+
+### MessagesSuccess
++ messages (array[string]) - Nessun messaggio di errore
+
+### AgendaRes
++ id: 78869708 (number, required) - identificatore del programma
++ startDate:`2018-10-01T08:30:00.603Z` (string, required) - data inizio dell'evento
++ endDate:`2018-10-01T10:30:00.603Z` (string, required) - data fine evento
++ facilityName: Stadio Artemio Franchi (string, required) - nome dell'impianto in cui si terrà l'evento
++ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
++ pic: 09a4de78e6mm46719ec00fe83beac8d6.png (string, required) - nome file immagine associata
++ timeSlots (array[TimeSlot, TimeSlot]) 
+
+### TimeSlot
++ id: 78869708 (number, required) - timeSlot id
++ pic: 09a4de78e6b646719ec00fe83beac8d6.png (string, required) - nome file immagine associata
++ dayOfWeek: domenica (string, required) - giorno di riferimento per il timeSlot
++ exception: chiusura straordinaria (string) - eventuale eccezione sullo slot
++ timeFrom: 15:00:00 (string, required) - orario di inizio timeSlot
++ timeTo: 17:00:00 (string, required) - orario di fine timeSlot
++ shortName: primo (string, required) - short name dello slot
++ text: Fiorentina-Roma (string, optional) - descrizione del timeSlot
+
+### EventShare
++ socialId: Facebook (string, required) - identificatore del social
++ id: 78869707 (number, required) - identificatore evento
++ shortName:  Corso di Master in IoT (string, required) - nome evento
++ smallPic: https://www.google.it/search?q=image (string, optional) - url ad immagine piccola evento in NAS (Network Attached Storage)
++ bigPic: https://www.google.it/search?q=image (string, required) - url ad immagine grande evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ facilityId: 69298237 (number, required) - identificatore di impianto
++ isSpot: true (boolean, required) - booleano che indica se ha calendario finito (conferenza o concerto)
++ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento
++ calendarId: 50491071 (number, required) - identificatore del calendario dell'evento
++ eventType: educazione (string, required) - tipologia di evento
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
+
+### EventRes
++ id: 78869707 (number, required) - identificatore evento
++ shortName:  Corso di Master in IoT (string, required) - nome evento
++ smallPic: https://www.google.it/search?q=image (string, optional) - url ad immagine piccola evento in NAS (Network Attached Storage)
++ bigPic: https://www.google.it/search?q=image (string, required) - url ad immagine grande evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ facilityId: 69298237 (number, required) - identificatore di impianto
++ isSpot: true (boolean, required) - booleano che indica se ha calendario finito (conferenza o concerto)
++ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridontata con il calendario)
++ calendarId: 50491071 (number, required) - identificatore del calendario dell'evento
++ eventType: educazione (string, required) - tipologia di evento
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
++ aggregationField: (array[FacilityAggregator, FacilityAggregator], required) - lista aggregatori
+
+### NotificationRes
+
++ id: 80768151 (number, required) - identificatore notifica
++ priority: 2 (number, required) - priorità di notifica
++ shortName: Coda su A1 (string, required) - nome notifica
++ text: Si prevede una coda di... (string, required) - descrizione
++ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di generazione della notifica
++ mainTS: `2018-11-05T30:04:15.735Z` (string, required) - data di inizio evento o simile
++ order: 2 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche
++ group: traffico (string, required) - categoria della notifica
++ actionCategory: clicca qui (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio
++ actionActivityId: 123 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
++ actionLink:  "https://www.autostrade.it" (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
+
+### NotificationActionReq
++ body: param1, param2, param3 (string, optional) - parametri da passare all'azione
+
+### NotificationActionRes
++ id: 10 (number, required) - identificatore della notification action passata in input
++ body: param1 param2 param3 (string, optional) - parametri di input della action passati nella `request`
+
+### FacilityRes1
++ id: 80677375 (number, required) - identificativo dell'impianto
++ shortName: Stadio Artemio Franchi (string, required) - nome impianto
++ pic: https://www.google.it/search?q=image (string, required) - url ad immagine impianto in NAS (Network Attached Storage)
++ text: string - descrizione dell'impianto
++ map: mappa (string, required) - TIPO NON DEFINITIVO, STABILIRLO! 
++ aggregationField: (array[FacilityAggregator, FacilityAggregator], required) - lista aggregatori
++ ownerId: 628492 (number, required) - identificativo del proprietario dell'impianto
++ POISet: (array[POI, POI], required) - insieme di POI
+
+### FacilityRes2
++ id: 40677376 (number, required) - identificativo dell'impianto
++ shortName: PIN (string, required) - nome impianto
++ pic: https://www.google.it/search?q=image (string, required) - url ad immagine impianto in NAS (Network Attached Storage)
++ text: string - descrizione dell'impianto
++ map: mappa (string, required) - TIPO NON DEFINITIVO, STABILIRLO! 
++ aggregationField: (array[FacilityAggregator], required) - lista aggregatori
++ ownerId: 628492 (number, required) - identificativo del proprietario dell'impianto
+
+
+### POI
++ id: 1 (number, required) - id Point Of Interest
++ shortName: WC (string, required) - nome POI
++ text: Servizi igienici (string, optional) - descrizione del POI
++ facilityId: 23 (number, required) - impianto di riferimento
++ latitude: 23.2 (number, required) - latitudine
++ longitude: 635.2 (number, required) - longitudine
++ level: 2 (number, required) - piano 
++ isAccessible: true (boolean, required) - accessibilità per invalidi
++ calendarId: 1233 (number, required) - tempi di funzionamento del POI
++ isActive: true (boolean, required) - stato del POI (operativo o meno)
++ poiTypeId: 1232 (number, required) - tipologia di POI
++ creationTS: 16:21:32 (string, required) - data di creazione del POI
+
+### FacilityAggregator
+
++ id: 1 (number, required) - identificativo dell'aggregatore
++ type: 1 (number, required) - tipo dell'aggregatore
+
+### CE230Error
+- metadata (object)
+  - messages (array[230ErrorMessage]) - Lista di messaggi 
+
+### 230ErrorMessage 
++ message: Errore validazione input (string, required) - descrizione messaggio
++ title: Validazione input (string, required) - Nome messaggio
++ type: ERROR (string, required) - Tipologia del messaggio
++ target: Modal (string, required) - Tipologia di rappresentazione del messaggio
++ errorCode: 230 (number, required) - Codice di errore
