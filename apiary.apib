@@ -2,7 +2,7 @@ FORMAT: 1A
 HOST:  https://eservant.quidinfo.it
 
 
-# Core services [new Blueprint]
+# Core services
 
 Microservizio che offre le funzionalità core di eServant.
 
@@ -26,7 +26,7 @@ La richiesta non ha vincoli particolari di formato.
 
 ### GET
 
-Restituisce l'evento corrispondente all' `id` passato.
+Restituisce il dettaglio dell'evento corrispondente all' `id` passato.
 
 Se l'id passato non esiste ritorna un errore.
 
@@ -48,6 +48,7 @@ Se l'id passato non esiste ritorna un errore.
 
 ## /core/events/users/{username} 
 
+[***STABLE***]
       
 ### GET 
 
@@ -71,15 +72,17 @@ Componendo invece una request priva di username parameter o non ancora registrat
 
 ## /core/events/suggestions
 
+[***STABLE***]
+
 ### GET
 
 Restituisce la lista dei ***primi 10*** eventi ordinati in base alla combinazione di parametri data in input.
-I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventType`, `timeFrom` e `timeTo`.
+I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventAggregator`, `timeFrom` e `timeTo`.
 
 
 + Attributes
     + Shortname: "Master in IoT" (string, required) - nome dell'evento 
-    + Eventtype: "Corso di laurea" (string, optional) - tipo di evento
+    + EventAggregator: "Corso di laurea" (string, optional) - tipo di evento
     + Timefrom: `2018-10-01T08:30:00.603Z` (string, optional) - ora di inizio
     + Timeto: `2018-10-12T15:30:00.603Z` (string, optional) - ora di fine
 
@@ -258,17 +261,19 @@ allo user specificato da `username`. Ritorna la lista degli eventi associati all
 
 ## /core/agenda/events/{id}
 
+[***STABLE***]
+
 ### GET
 
 Restituisce il programma di un evento.
 Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
 
 + Parameters
-    + id - identificativo del programma di evento che si necessita 
+    + id: 24146414 (number, required) - identificativo del programma di evento che si necessita 
 
 + Request (application/json)
     + Parameters
-        + id: 24146414
+        + id: 24146414 (number, required)
 
 + Response 200 (application/json)
 
@@ -277,6 +282,75 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
+
+# Group Services
+
+## /core/events/{id}/services
+
+### GET
+
+Restituisce informazioni riassuntive di tutti servizi associati all'evento specificato 
+da `id`. Nota bene: un aiuto è da intendersi come un servizio di una particolare categoria
+(*help*). 
+
++ Parameters
+    
+    + id: 80677375 (number, required) - identificativo dell'evento a cui sono associati i servizi cercati
+
+
++ Response 200 (application/json)
+   
+    + Attributes (CEServiceSummaryListRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+## /core/events/{eventId}/services/{serviceId}
+
+### GET
+
+Restituisce dettaglio di servizio identificato da `serviceId` di un evento specificato da 
+`eventId`. 
+
++ Parameters
+    
+    + serviceId: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
+    + eventId: 98765221 (number, required) - identificativo dell'evento associato a servizio di cui si cerca dettaglio
+    
++ Response 200 (application/json)
+   
+    + Attributes (CEServiceDetailRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+ 
+
+
+## /core/events/{id}/services/{category}
+
+### GET
+
+Restituisce informazioni riassuntive di tutti servizi di una determinata `category`, associata 
+all'evento specificato da `id`. Nota bene: un aiuto è da intendersi come un servizio di una 
+particolare categoria (*help*). Dunque il tapping sull'icona aiuto dovrà chiamare questo servizio
+con `category:help`. 
+
++ Parameters
+    
+    + category: help (string, required) - tipo dei servizi cercati
+    + id: 80677375 (number, required) - identificativo dell'evento a cui sono associati i servizi cercati
+
+
++ Response 200 (application/json)
+   
+    + Attributes (CEServiceSummaryListRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+ 
 
 ## Data Structures
 
@@ -290,7 +364,7 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 
 ### CEEventListRes
 + metadata (MessagesSuccess)
-+ payload (array[EventRes, EventRes1])
++ payload (array[EventSuggested, EventSuggested])
 
 ### CEEventUserListRes
 + metadata (MessagesSuccess)
@@ -320,40 +394,31 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + metadata (MessagesSuccess)
 + payload (AgendaRes)
 
+### CEServiceSummaryListRes
++ metadata (MessagesSuccess)
++ payload (array[ServiceSummaryRes, ServiceSummaryRes1])
+
+### CEServiceDetailRes
++ metadata (MessagesSuccess)
++ payload (ServiceDetailRes)
+
 ### MessagesSuccess
 + messages (array[string]) - Nessun messaggio di errore
 
-### AgendaRes 
-
-+ id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
-+ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
-+ exception: Vivi il PIN (string) - eventuale eccezione sul calendario
-+ timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
 
-### AgendaResDeprecated
-
-+ id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
-+ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
-+ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
-+ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata
-+ fatherId: 12345643 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
-
-### AgendaRes1Deprecated
-
-+ id: 12345643 (number, required) - identificatore del programma
-+ startDate: "2018-11-11T00:00:00.000Z" (string, required) - data (no time) inizio evento
-+ endDate: `2018-12-24T00:00:00.000Z` (string, required) - data (no time) fine evento
-+ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
-+ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata [TODO: definire formato uuid pic]
-+ fatherId: 372676487 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
+###EventSuggested
++ id: 78869707 (number, required) - identificatore evento
++ shortName:  Corso di Master in IoT (string, required) - nome evento
++ smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
++ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2018-09-01T10:22:43.235Z` (string, required) - data fine evento (ridondata con Agenda)
++ facilityId: 12345678 (number, required) - id impianto
++ aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
 ### EventRes
-
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -362,14 +427,13 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
 + startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
-+ facilityId: 12345678 (number, required) - id impianto
-+ pois : (array[PoiRes, PoiRes1], required) - poi associati all'evento 
++ facility: (FacilitySummaryRes) - lista che da descrizione riassuntiva di impianto 
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
++ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
 + agenda : (AgendaResDeprecated, required) - agenda dell'evento
 + aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
-
 ### EventRes1
-
 + id: 98765432 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
 + smallPic: `5b721f23-650d-408e-bc49-bdfa2f8d7217.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -379,12 +443,12 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
 + startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
 + facilityId: (FacilityRes, required) - impianto
-+ pois : (array[PoiRes, PoiRes1], required) - poi associati all'evento 
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
++ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
 + agenda : (AgendaRes1Deprecated, required) - agenda dell'evento
 + aggregationFields : (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
 ### EventFacSummaryRes
-
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -395,7 +459,6 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + facility: (FacilitySummaryRes, required) - info riassuntive della facility
 
 ### EventFacSummaryRes1
-
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -405,66 +468,58 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
 + facility: (FacilitySummaryRes1, required) - info riassuntive della facility
 
-
-### FacilitySummaryRes
-+ id: 80677353 (number, required) - identificativo dell'impianto
-+ shortName: Università degli studi di Firenze (string, required) - nome impianto
-
-### FacilitySummaryRes1
-+ id: 80677369 (number, required) - identificativo dell'impianto
-+ shortName: PIN (string, required) - nome impianto
-
-
 ### EventAggregatorRes
-
 + id : 12 (number, required)
 + type : sport (string, required)
 
 ### EventAggregatorRes1
-
 + id : 10 (number, required)
 + type : intrattenimento (string, required)
 
-
 ### EventOfUser
-
 + eventId : (EventRes, required) - identificatore evento 
 + userId : mario.rossi@utente.it (string, required) 
 
-### FacilityRes
 
-+ id: 80677375 (number, required) - identificativo dell'impianto
-+ shortName: Stadio Artemio Franchi (string, required) - nome impianto
-+ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
-+ text: stadio di Firenze (string, required) - descrizione dell'impianto
-+ owner: Pippo (string, required) - intestatario dell'impianto
+### EventShare
++ socialId: Facebook (string, required) - identificatore del social
++ id: 78869707 (number, required) - identificatore evento
++ shortName:  Corso di Master in IoT (string, required) - nome evento
++ smallPic: `6dffe2ad-5c8a-4065-af89-9ca3694a87c6.png` (string, optional) - uuid ad immagine piccola evento in NAS (Network Attached Storage)
++ bigPic: `846dfa1e-c5f8-44db-8410-cf4eb8d147ab.jpeg` (string, required) - uuid ad immagine grande evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ facilityId: 69298237 (number, required) - identificatore di impianto
++ isSpot: true (boolean, required) - booleano che indica se ha calendario finito (conferenza o concerto)
++ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento
++ calendarId: 50491071 (number, required) - identificatore del calendario dell'evento
++ eventType: educazione (string, required) - tipologia di evento
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-+ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois : (array[PoiRes, PoiRes1], required) - poi facility
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
 
 
-### FacilityRes1
+### PoiEvFacRes
++ id: 1 (number, required) - id Point Of Interest
++ shortName: Entrata 1 (string, required) - nome POI
++ text: Entrata nord-ovest (string, optional) - descrizione del POI
++ latitude: 23.2 (number, required) - latitudine
++ longitude: 635.2 (number, required) - longitudine
++ level: 2 (number, required) - piano 
++ isAccessible: true (boolean) - accessibilità per invalidi
++ isActive: true (boolean, required) - stato del POI (operativo o meno)
++ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ poiType: 1232 (number, required) - tipologia di POI
 
-+ id: 98765432 (number, required) - identificativo dell'impianto
-+ shortName: PIN (string, required) - nome impianto
-+ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
-+ text: stadio di Firenze (string, required) - descrizione dell'impianto
-+ owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-+ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois : (array[PoiRes, PoiRes1], required) - poi facility
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
+### PoiEvFacRes1
++ id: 2 (number, required) - id Point Of Interest
++ shortName: Varco (string, required) - nome POI
++ text: Varco sud-est (string, optional) - descrizione del POI
++ latitude: 23.2 (number, required) - latitudine
++ longitude: 635.2 (number, required) - longitudine
++ level: 2 (number, required) - piano 
++ isAccessible: true (boolean) - accessibilità per invalidi
++ isActive: true (boolean, required) - stato del POI (operativo o meno)
++ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ poiType: 1232 (number, required) - tipologia di POI
 
-
-### FacilityAggregatorRes
-
-+ id: 1 (number, required) - identificativo dell'aggregatore
-+ type: 1 (string, required) - tipo dell'aggregatore
-
-### MessagesRes
-+ codice: string, required
-+ testo: string, required
 
 ### NotificationRes
 
@@ -480,30 +535,48 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + actionActivityId: 123 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
 + actionLink:  "https://www.autostrade.it" (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
 
+### NotificationActionReq
++ body: param1, param2, param3 (string, optional) - parametri da passare all'azione
 
-### PoiRes
-+ id: 1 (number, required) - id Point Of Interest
-+ shortName: WC (string, required) - nome POI
-+ text: Servizi igienici (string, optional) - descrizione del POI
-+ latitude: 23.2 (number, required) - latitudine
-+ longitude: 635.2 (number, required) - longitudine
-+ level: 2 (number, required) - piano 
-+ isAccessible: true (boolean) - accessibilità per invalidi
-+ isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
-+ poiType: 1232 (number, required) - tipologia di POI
+### NotificationActionRes
++ id: 10 (number, required) - identificatore della notification action passata in input
++ body: param1 param2 param3 (string, optional) - parametri di input della action passati nella `request`
 
-### PoiRes1
-+ id: 2 (number, required) - id Point Of Interest
-+ shortName: WC (string, required) - nome POI
-+ text: Servizi igienici (string, optional) - descrizione del POI
-+ latitude: 23.2 (number, required) - latitudine
-+ longitude: 635.2 (number, required) - longitudine
-+ level: 2 (number, required) - piano 
-+ isAccessible: true (boolean) - accessibilità per invalidi
-+ isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
-+ poiType: 1232 (number, required) - tipologia di POI
+
+
+### FacilityRes
++ id: 80677375 (number, required) - identificativo dell'impianto
++ shortName: Stadio Artemio Franchi (string, required) - nome impianto
++ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
++ text: stadio di Firenze (string, required) - descrizione dell'impianto
++ owner: Pippo (string, required) - intestatario dell'impianto
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
++ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi facility
++ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
+
+### FacilityRes1
++ id: 98765432 (number, required) - identificativo dell'impianto
++ shortName: PIN (string, required) - nome impianto
++ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
++ text: stadio di Firenze (string, required) - descrizione dell'impianto
++ owner: Pippo (string, required) - intestatario dell'impianto
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
++ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi facility
++ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
+
+### FacilityAggregatorRes
++ id: 1 (number, required) - identificativo dell'aggregatore
++ type: 1 (string, required) - tipo dell'aggregatore
+
+### FacilitySummaryRes
++ id: 80677353 (number, required) - identificativo dell'impianto
++ shortName: Università degli studi di Firenze (string, required) - nome impianto
+
+### FacilitySummaryRes1
++ id: 80677369 (number, required) - identificativo dell'impianto
++ shortName: PIN (string, required) - nome impianto
 
 
 ### PofRes
@@ -517,6 +590,33 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + isActive: true (boolean, required) - stato del POF (operativo o meno)
 + creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POF
 + poiType: 1232 (number, required) - tipologia di POF
+
+
+### AgendaRes 
++ id: 78869708 (number, required) - identificatore del programma
++ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
++ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
++ exception: chiusura eccezionale (string, optional) - eventuale eccezione sul calendario
++ timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
+
+### AgendaResDeprecated
++ id: 78869708 (number, required) - identificatore del programma
++ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
++ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
++ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
++ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata
++ fatherId: 12345643 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
+
+### AgendaRes1Deprecated
++ id: 12345643 (number, required) - identificatore del programma
++ startDate: "2018-11-11T00:00:00.000Z" (string, required) - data (no time) inizio evento
++ endDate: `2018-12-24T00:00:00.000Z` (string, required) - data (no time) fine evento
++ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
++ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata [TODO: definire formato uuid pic]
++ fatherId: 372676487 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
+
 
 ### TimeSlotRes
 + id: 78869708 (number, required) - timeSlot id
@@ -539,23 +639,59 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + pic: `37adab3a-c008-4fc1-9e72-cb28383a31d5.jpeg` (string, required) - uuid ad immagine
 
 
+### ServiceSummaryRes
++ id: 12345678 (number, required) - identificatore del servizio
++ shortName: SOS (string, required) - nome del servizio
++ text: Chiamate di emergenza (string, optional) - descrizione del servizio
++ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
+
+### ServiceSummaryRes1
++ id: 87654321 (number, required) - identificatore del servizio
++ shortName: Punto di ristoro (string, required) - nome del servizio
++ text: Caffè, tavola calda (string, optional) - descrizione del servizio
++ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
+
+
+### ServiceDetailRes
++ id: 87654321 (number, required) - identificatore del servizio
++ shortName: Punto di ristoro (string, required) - nome del servizio
++ text: Caffè, tavola calda (string, optional) - descrizione del servizio
++ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
++ category: food (string, required) - categoria di appartenenza del servizio
++ privacyId: 13 (number, required) - TODO chiedere meglio
++ creationTS:  `2018-09-01T10:22:43.235Z` (string, required) - TimeStamp di generazione del servizio
++ isAvailable: true (boolean, required) - indica se il servizio è, al momento, disponibile 
++ agendaId: 12432543 (number, optional) - idenitficatore del calendario riferito al servizio
++ pois: (array[PoiServiceRes, PoiServiceRes1]) - id dei poi del servizio
+
+### PoiServiceRes
++ id: 1 (number, required) - id Point Of Interest
++ shortName: Cassa 1 (string, required) - nome POI
++ text: Cassa ingresso 1 (string, optional) - descrizione del POI
++ latitude: 23.2 (number, required) - latitudine
++ longitude: 635.2 (number, required) - longitudine
++ level: 2 (number, required) - piano 
++ isAccessible: true (boolean) - accessibilità per invalidi
++ isActive: true (boolean, required) - stato del POI (operativo o meno)
++ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ poiType: 1232 (number, required) - tipologia di POI
+
+### PoiServiceRes1
++ id: 2 (number, required) - id Point Of Interest
++ shortName: Cassa 2 (string, required) - nome POI
++ text: Cassa ingresso 2 (string, optional) - descrizione del POI
++ latitude: 23.2 (number, required) - latitudine
++ longitude: 635.2 (number, required) - longitudine
++ level: 2 (number, required) - piano 
++ isAccessible: true (boolean) - accessibilità per invalidi
++ isActive: true (boolean, required) - stato del POI (operativo o meno)
++ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ poiType: 1232 (number, required) - tipologia di POI
+
 ### UserFacility
 + facilityId : (FacilityRes, required) - identificatore facility
 + userId : mario.rossi@utente.it (string, required) - id utente
 
-### EventShare
-+ socialId: Facebook (string, required) - identificatore del social
-+ id: 78869707 (number, required) - identificatore evento
-+ shortName:  Corso di Master in IoT (string, required) - nome evento
-+ smallPic: `6dffe2ad-5c8a-4065-af89-9ca3694a87c6.png` (string, optional) - uuid ad immagine piccola evento in NAS (Network Attached Storage)
-+ bigPic: `846dfa1e-c5f8-44db-8410-cf4eb8d147ab.jpeg` (string, required) - uuid ad immagine grande evento in NAS (Network Attached Storage)
-+ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
-+ facilityId: 69298237 (number, required) - identificatore di impianto
-+ isSpot: true (boolean, required) - booleano che indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento
-+ calendarId: 50491071 (number, required) - identificatore del calendario dell'evento
-+ eventType: educazione (string, required) - tipologia di evento
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
 
 ### ToKnow
 + id: 37827387 (string, required) - id della info utile 
@@ -564,18 +700,19 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - immagine icona di riferimento per la info
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione della info
 
-### NotificationActionReq
-+ body: param1, param2, param3 (string, optional) - parametri da passare all'azione
 
-### NotificationActionRes
-+ id: 10 (number, required) - identificatore della notification action passata in input
-+ body: param1 param2 param3 (string, optional) - parametri di input della action passati nella `request`
+### MessagesRes
++ codice: string, required
++ testo: string, required
+
+### GenericIdList
++ id
 
 ### CE230Error
 - metadata (object)
   - messages (array[230ErrorMessage]) - Lista di messaggi 
 
-### 230ErrorMessage 
+### 230ErrorMessage
 + message: Errore validazione input (string, required) - descrizione messaggio
 + title: Validazione input (string, required) - Nome messaggio
 + type: ERROR (string, required) - Tipologia del messaggio
