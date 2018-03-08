@@ -24,6 +24,8 @@ La richiesta non ha vincoli particolari di formato.
 
 ## /core/events/{id}
 
+[***STABLE***]
+
 ### GET
 
 Restituisce il dettaglio dell'evento corrispondente all' `id` passato.
@@ -88,13 +90,15 @@ I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventAg
 
 + Response 200 (application/json)
 
-    + Attributes (CEEventListRes)
+    + Attributes (CESuggestedEventListRes)
 
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
 
 ## /core/associate/events/{id}/users/{username}
+
+[***STABLE***]
 
 ### PUT
 
@@ -124,11 +128,12 @@ Ritorna i dati dell'evento appena associato.
 
 ## /core/share/events/{id}/users/{username}
 
+[***STABLE***]
+
 ### PUT
 
-Condivide l'evento `id` sul profilo social di user `username`. 
-Il profilo social viene specificato nel corpo della request, insieme ai dati dell'evento. 
-Ritorna i dati dell'evento appena condiviso.
+Memorizza dati della condivisione dell'evento `id` sul profilo social di user `username`. 
+**Occorre stabilire come FE passi a BE il tipo di social.**
 
 + Parameters
     + id: 80677375 (number, required) - identificativo dell'evento che si intende associare all'utente
@@ -142,6 +147,8 @@ Ritorna i dati dell'evento appena condiviso.
         + username: cj@quidinfo.it 
         + id: 80677375
 
+    + Attributes(CESocialNameReq)
+    
 + Response 200 (application/json)
     
      + Attributes (CEEventRes)
@@ -152,27 +159,26 @@ Ritorna i dati dell'evento appena condiviso.
 
 # Group Notifications
 
-### Campi notifica:
-
 ## /core/notifications 
+
+[***STABLE***]
 
 ### GET
 
 Ritorna la lista di tutte le notifiche. 
-La richiesta non ha vincoli particolari di formato.
-
 
 + Response 200 (application/json)
 
-     + Attributes (CEEventListRes)
+     + Attributes (CENotificationListRes)
 
 
-## /core/notificationActions/{id}
+## /core/notification-actions/{id}
+
+[***STABLE***]
+
 ### PUT 
 
 Processa operazione richiesta il cui `id` è passato in input, ritornando `payload` in input. 
-Eventuali dati da passare devono far parte del `payload`.
-Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
 
 + Parameters
     + id - identificativo dell' azione da effettuare, in risposta di una notifica 
@@ -195,10 +201,11 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 
 ## /core/facilities
 
+[***STABLE***]
+
 ### GET
 
 Ritorna la lista di tutti gli impianti.
-La richiesta non ha vincoli particolari formato.
 
 + Response 200 (application/json)
   
@@ -210,11 +217,12 @@ La richiesta non ha vincoli particolari formato.
 
 
 ## /core/facilities/{id}
+
+[***STABLE***]
       
 ### GET 
 
-Ritorna la facility identificata dall'id in input.
-Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+Ritorna il dettaglio della facility identificata da `id` in input.
 
 + Parameters
     + id - identificativo della facility che si necessita 
@@ -233,10 +241,12 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 
 ## /core/follow/facilities/{id}/users/{username}
 
+[***STABLE***]
+
 ### PUT
 
-Esegue l'associazione di tutti gli eventi attuali e futuri, relativi alla facility il cui `id` viene passato,
-allo user specificato da `username`. Ritorna la lista degli eventi associati alla facility.
+Associa tutti gli eventi, attuali e futuri, della facility, corrispondente ad `id`,
+allo user, specificato da `username`. Ritorna la lista degli eventi associati alla facility.
 
 + Parameters
     + id: 80677375 (number, required) - identificativo dell'impsianto che viene associato all'utente
@@ -266,7 +276,7 @@ allo user specificato da `username`. Ritorna la lista degli eventi associati all
 ### GET
 
 Restituisce il programma di un evento.
-Componendo invece una request priva di id parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+Componendo invece una request priva di `id` parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
 
 + Parameters
     + id: 24146414 (number, required) - identificativo del programma di evento che si necessita 
@@ -278,6 +288,9 @@ Componendo invece una request priva di id parameter o non ancora registrato al s
 + Response 200 (application/json)
 
     + Attributes (CEAgendaRes)
+
+    + Attributes (CEEventListRes)
+        
 
 + Response 500 (application/json)
 
@@ -306,12 +319,12 @@ da `id`. Nota bene: un aiuto è da intendersi come un servizio di una particolar
 
  + Attributes (CE230Error)
 
-## /core/events/{eventId}/services/{serviceId}
+## /core/events/{event_id}/services/{service_id}
 
 ### GET
 
-Restituisce dettaglio di servizio identificato da `serviceId` di un evento specificato da 
-`eventId`. 
+Restituisce dettaglio di servizio identificato da `service_id` di un evento specificato da 
+`event_id`. 
 
 + Parameters
     
@@ -350,6 +363,46 @@ con `category:help`.
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
+
+
+# Group News  
+
+## /core/news
+
+### GET
+
+Ritorna tutte le news presenti.
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+ + Attributes (CENewsListRes)
+
+
+## /core/news/{id}
+
+### GET
+
+Ritorna la news corrispondente all' `id` passato.
+
+Se l'id passato non esiste ritorna un errore.
+
++ Parameters
+    + id (number, required) - identificativo dell'evento 
+
++ Request (application/json)
+    + Parameters
+        + id: 2
+        
++ Response 200 (application/json)
+
+    + Attributes (NewsRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
  
 
 ## Data Structures
@@ -360,11 +413,15 @@ con `category:help`.
 
 ### CEEventRes
 + metadata (MessagesSuccess)
-+ payload (EventRes)
++ payload (Event)
 
 ### CEEventListRes
 + metadata (MessagesSuccess)
-+ payload (array[EventSuggested, EventSuggested])
++ payload (array[Event, Event1])
+
+### CESuggestedEventListRes
++ metadata (MessagesSuccess)
++ payload (array[EventSuggested, EventSuggested1])
 
 ### CEEventUserListRes
 + metadata (MessagesSuccess)
@@ -372,7 +429,7 @@ con `category:help`.
 
 ### CENotificationListRes
 + metadata (MessagesSuccess)
-+ payload (array[NotificationRes, NotificationRes])
++ payload (array[NotificationRes, NotificationRes1])
 
 ### CENotificationActionReq
 + metadata (MessagesSuccess)
@@ -402,23 +459,65 @@ con `category:help`.
 + metadata (MessagesSuccess)
 + payload (ServiceDetailRes)
 
+### CESocialNameReq
++ metadata (MessagesSuccess)
++ payload (SocialNameReq)
+
+### CENewsListRes
++ metadata (MessagesSuccess)
++ payload (NewsRes)
+
 ### MessagesSuccess
 + messages (array[string]) - Nessun messaggio di errore
 
 
+### id1
++ id: 1 (number, required)
 
-###EventSuggested
+### id2
++ id: 2 (number, required)
+
+
+### Event
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
++ bigPic: `2431521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
 + startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
 + endTS: `2018-09-01T10:22:43.235Z` (string, required) - data fine evento (ridondata con Agenda)
 + facilityId: 12345678 (number, required) - id impianto
-+ aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
++ aggregationFields: (array[enum[string]], required) - aggregatori di eventi
+    + Members
+        + `VIVI_IL_PIN`
+        + `MUSICA_CLASSICA`
+        + `MUSICA_ROCK`
+
+### Event1
++ id: 21345678 (number, required) - identificatore evento
++ shortName:  Vivi il PIN (string, required) - nome evento
++ smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
++ bigPic: `648521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
++ text: L'evento ha lo scopo di... (string, required) - descrizione dell'evento
++ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
++ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2018-09-01T10:22:43.235Z` (string, required) - data fine evento (ridondata con Agenda)
++ facilityId: 12345678 (number, required) - id impianto
++ aggregationFields: (array[enum[string]], required) - aggregatori di eventi
+    + Members
+        + `VIVI_IL_PIN`
+
+### EventSuggested
++ isFollow: true (boolean, required) - partecipazione dello user all'evento
++ event(Event) 
+
+### EventSuggested1
++ isFollow: true (boolean, required) - partecipazione dello user all'evento 
++ event(Event1) 
 
 ### EventRes
++ Rimuovere?
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -427,13 +526,14 @@ con `category:help`.
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
 + startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
-+ facility: (FacilitySummaryRes) - lista che da descrizione riassuntiva di impianto 
++ facilityId: 34323425 (number, required) - identificatore di impianto 
 + pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
 + services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
 + agenda : (AgendaResDeprecated, required) - agenda dell'evento
 + aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
-### EventRes1
+### EventRes1 
++ Rimuovere?
 + id: 98765432 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
 + smallPic: `5b721f23-650d-408e-bc49-bdfa2f8d7217.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
@@ -459,7 +559,7 @@ con `category:help`.
 + facility: (FacilitySummaryRes, required) - info riassuntive della facility
 
 ### EventFacSummaryRes1
-+ id: 78869707 (number, required) - identificatore evento
++ id: 12345678 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
 + bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
@@ -476,7 +576,9 @@ con `category:help`.
 + id : 10 (number, required)
 + type : intrattenimento (string, required)
 
-### EventOfUser
+
+
+### EventOfUser Rimuovere?
 + eventId : (EventRes, required) - identificatore evento 
 + userId : mario.rossi@utente.it (string, required) 
 
@@ -494,7 +596,6 @@ con `category:help`.
 + calendarId: 50491071 (number, required) - identificatore del calendario dell'evento
 + eventType: educazione (string, required) - tipologia di evento
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-
 
 ### PoiEvFacRes
 + id: 1 (number, required) - id Point Of Interest
@@ -524,16 +625,30 @@ con `category:help`.
 ### NotificationRes
 
 + id: 80768151 (number, required) - identificatore notifica
-+ priority: 2 (number, required) - priorità di notifica
++ priority: 4 (number, required) - priorità di notifica
 + shortName: Coda su A1 (string, required) - nome notifica
 + text: Si prevede una coda di... (string, required) - descrizione
 + creationTS: `2018-11-05T19:04:15.735Z` (string) - data di generazione della notifica
 + mainTS: `2018-11-05T30:04:15.735Z` (string) - data di inizio (evento o altro)
-+ order: 2 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche
++ order: 4 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: traffico (string, required) - categoria della notifica
 + actionCategory: clicca qui (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
 + actionActivityId: 123 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
-+ actionLink:  "https://www.autostrade.it" (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
++ actionLink:  https://www.autostrade.it (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
+
+### NotificationRes1
+
++ id: 123345678 (number, required) - identificatore notifica
++ priority: 1 (number, required) - priorità di notifica
++ shortName: Emergenza: incendio (string, required) - nome notifica
++ text: L'incendio ha colpito il settore... (string, required) - descrizione
++ creationTS: `2018-11-05T19:04:15.735Z` (string) - data di generazione della notifica
++ mainTS: `2018-11-05T30:04:15.735Z` (string) - data di inizio (evento o altro)
++ order: 1 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
++ group: emergenza (string, required) - categoria della notifica
+
+
+
 
 ### NotificationActionReq
 + body: param1, param2, param3 (string, optional) - parametri da passare all'azione
@@ -550,10 +665,10 @@ con `category:help`.
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
 + text: stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-+ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi facility
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione impianto
++ pof: (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
++ pois (array[id1, id2]) 
++ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
 
 ### FacilityRes1
 + id: 98765432 (number, required) - identificativo dell'impianto
@@ -561,14 +676,18 @@ con `category:help`.
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
 + text: stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
++ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione impianto
 + pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi facility
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes], required) - aggregatori Facility
++ pois: (array[id1, id2])
++ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
 
 ### FacilityAggregatorRes
 + id: 1 (number, required) - identificativo dell'aggregatore
-+ type: 1 (string, required) - tipo dell'aggregatore
++ type: SPORT (string, required) - tipo dell'aggregatore
+
+### FacilityAggregatorRes1
++ id: 2 (number, required) - identificativo dell'aggregatore
++ type: MUSIC (string, required) - tipo dell'aggregatore
 
 ### FacilitySummaryRes
 + id: 80677353 (number, required) - identificativo dell'impianto
@@ -594,8 +713,8 @@ con `category:help`.
 
 ### AgendaRes 
 + id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
-+ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
++ startDate: `2018-03-07T07:17Z` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2018-07-07T07:17Z` (string, required) - data (no time) fine evento ISO datetime
 + exception: chiusura eccezionale (string, optional) - eventuale eccezione sul calendario
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
@@ -620,8 +739,8 @@ con `category:help`.
 
 ### TimeSlotRes
 + id: 78869708 (number, required) - timeSlot id
-+ timeFrom: 15:00:00 (string, required) - date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ timeTo: 17:00:00 (string, required) - date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeFrom: `2018-05-07T07:00Z` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeTo: `2018-05-07T09:00Z` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
 + exception: chiusura straordinaria (string, optional) - eventuale eccezione sullo slot
 + dayOfWeek: SU (string, optional) - giorno di riferimento per il timeSlot. Valori possibili: "SU", "MO", "TU", "WE", "TH", "FR", "SA". I valori sono compatibili con lo standart CalDAV e iCalendar (vedi https://developers.google.com/google-apps/calendar/caldav/v2/guide#specifications , https://tools.ietf.org/html/rfc5545)
 + shortName: primo (string, required) - short name dello slot
@@ -630,8 +749,8 @@ con `category:help`.
 
 ### TimeSlotRes1
 + id: 12345678 (number, required) - timeSlot id
-+ timeFrom: 15:00:00 (string, required) - date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ timeTo: 17:00:00 (string, required) - date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeFrom: `2018-03-07T07:00Z` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeTo: `2018-03-07T10:00Z` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
 + exception: chiusura straordinaria (string) - eventuale eccezione sullo slot
 + dayOfWeek: SU (string) - giorno di riferimento per il timeSlot. Valori possibili: "SU", "MO", "TU", "WE", "TH", "FR", "SA". I valori sono compatibili con lo standart CalDAV e iCalendar (vedi https://developers.google.com/google-apps/calendar/caldav/v2/guide#specifications , https://tools.ietf.org/html/rfc5545)
 + shortName: primo (string, required) - short name dello slot
@@ -692,6 +811,18 @@ con `category:help`.
 + facilityId : (FacilityRes, required) - identificatore facility
 + userId : mario.rossi@utente.it (string, required) - id utente
 
+### NewsRes
++ id: 2 (number, required) - id news
++ shortName: Blocco uscita via Panciatichi (string, required) Titolo
++ text: a causa di interventi stradali (string, optional) Sottotitolo
++ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine news
++ body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fringilla nunc id elementum volutpat. Maecenas at mauris a lorem placerat tincidunt nec id orci. Cras dolor ligula, feugiat sed gravida iaculis, blandit et turpis. Vivamus id rhoncus lorem, id commodo leo. Praesent ornare pretium tortor ac auctor. Phasellus sagittis, massa in mattis tincidunt, massa metus ullamcorper diam, malesuada dapibus magna mauris et enim. Praesent mi quam, volutpat id consectetur sit amet, ullamcorper non ex. Duis dignissim quis ipsum ut pellentesque. Fusce consequat eros vitae erat lobortis elementum. (string, required) Corpo
++ category: (enum[string], required) - categoria
+    + Members
+        + `DENY`
+        + `MUSICA_CLASSICA`
+        + `MUSICA_ROCK`
+
 
 ### ToKnow
 + id: 37827387 (string, required) - id della info utile 
@@ -705,8 +836,8 @@ con `category:help`.
 + codice: string, required
 + testo: string, required
 
-### GenericIdList
-+ id
+### SocialNameReq
++ socialName: FACEBOOK (string, required) - nome del social
 
 ### CE230Error
 - metadata (object)
