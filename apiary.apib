@@ -324,8 +324,8 @@ Restituisce dettaglio di servizio identificato da `service_id` di un evento spec
 
 + Parameters
     
-    + serviceId: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
-    + eventId: 98765221 (number, required) - identificativo dell'evento associato a servizio di cui si cerca dettaglio
+    + service_id: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
+    + event_id: 98765221 (number, required) - identificativo dell'evento associato a servizio di cui si cerca dettaglio
     
 + Response 200 (application/json)
    
@@ -405,15 +405,15 @@ Se l'id passato non esiste ritorna un errore.
 
 ### CEEventReq
 + metadata (MessagesSuccess)
-+ payload (EventShare)
++ payload (EventShareReq)
 
 ### CEEventRes
 + metadata (MessagesSuccess)
-+ payload (Event)
++ payload (EventRes)
 
 ### CEEventListRes
 + metadata (MessagesSuccess)
-+ payload (array[Event, Event1])
++ payload (array[EventRes, EventRes1])
 
 ### CESuggestedEventListRes
 + metadata (MessagesSuccess)
@@ -474,15 +474,15 @@ Se l'id passato non esiste ritorna un errore.
 + id: 2 (number, required)
 
 
-### Event
+### EventRes
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
 + bigPic: `2431521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
-+ endTS: `2018-09-01T10:22:43.235Z` (string, required) - data fine evento (ridondata con Agenda)
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2018-09-01T10:22:43.235+0000` (string, required) - data fine evento (ridondata con Agenda)
 + facilityId: 12345678 (number, required) - id impianto
 + aggregationFields: (array[enum[string]], required) - aggregatori di eventi
     + Members
@@ -490,15 +490,15 @@ Se l'id passato non esiste ritorna un errore.
         + `MUSICA_CLASSICA`
         + `MUSICA_ROCK`
 
-### Event1
+### EventRes1
 + id: 21345678 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
 + smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
 + bigPic: `648521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: L'evento ha lo scopo di... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
-+ endTS: `2018-09-01T10:22:43.235Z` (string, required) - data fine evento (ridondata con Agenda)
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2018-09-01T10:22:43.235+0000` (string, required) - data fine evento (ridondata con Agenda)
 + facilityId: 12345678 (number, required) - id impianto
 + aggregationFields: (array[enum[string]], required) - aggregatori di eventi
     + Members
@@ -506,13 +506,13 @@ Se l'id passato non esiste ritorna un errore.
 
 ### EventSuggested
 + isFollow: true (boolean, required) - partecipazione dello user all'evento
-+ event(Event) 
++ event(EventRes) 
 
 ### EventSuggested1
 + isFollow: true (boolean, required) - partecipazione dello user all'evento 
-+ event(Event1) 
++ event(EventRes1) 
 
-### EventRes
+### EventResDeprecated
 + Rimuovere?
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
@@ -520,15 +520,15 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
 + facilityId: 34323425 (number, required) - identificatore di impianto 
 + pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
 + services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
 + agenda : (AgendaResDeprecated, required) - agenda dell'evento
 + aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
-### EventRes1 
+### EventResDeprecated1 
 + Rimuovere?
 + id: 98765432 (number, required) - identificatore evento
 + shortName:  Vivi il PIN (string, required) - nome evento
@@ -536,8 +536,8 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `6a7ebf2a-f0a9-47fd-8b09-b35ca0100a2b.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
 + facilityId: (FacilityRes, required) - impianto
 + pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
 + services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
@@ -551,7 +551,7 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
 + facility: (FacilitySummaryRes, required) - info riassuntive della facility
 
 ### EventFacSummaryRes1
@@ -561,7 +561,7 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235Z` (string, required) - data inizio evento (ridondata con Agenda)
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
 + facility: (FacilitySummaryRes1, required) - info riassuntive della facility
 
 ### EventAggregatorRes
@@ -573,13 +573,7 @@ Se l'id passato non esiste ritorna un errore.
 + type : intrattenimento (string, required)
 
 
-
-### EventOfUser Rimuovere?
-+ eventId : (EventRes, required) - identificatore evento 
-+ userId : mario.rossi@utente.it (string, required) 
-
-
-### EventShare
+### EventShareReq
 + socialId: Facebook (string, required) - identificatore del social
 + id: 78869707 (number, required) - identificatore evento
 + shortName:  Corso di Master in IoT (string, required) - nome evento
@@ -602,7 +596,7 @@ Se l'id passato non esiste ritorna un errore.
 + level: 2 (number, required) - piano 
 + isAccessible: true (boolean) - accessibilità per invalidi
 + isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ creationTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di creazione del POI
 + poiType: 1232 (number, required) - tipologia di POI
 
 ### PoiEvFacRes1
@@ -614,7 +608,7 @@ Se l'id passato non esiste ritorna un errore.
 + level: 2 (number, required) - piano 
 + isAccessible: true (boolean) - accessibilità per invalidi
 + isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ creationTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di creazione del POI
 + poiType: 1232 (number, required) - tipologia di POI
 
 
@@ -624,8 +618,8 @@ Se l'id passato non esiste ritorna un errore.
 + priority: 4 (number, required) - priorità di notifica
 + shortName: Coda su A1 (string, required) - nome notifica
 + text: Si prevede una coda di... (string, required) - descrizione
-+ creationTS: `2018-11-05T19:04:15.735Z` (string) - data di generazione della notifica
-+ mainTS: `2018-11-05T30:04:15.735Z` (string) - data di inizio (evento o altro)
++ creationTS: `2018-11-05T19:04:15.735+0000` (string) - data di generazione della notifica
++ mainTS: `2018-11-05T30:04:15.735+0000` (string) - data di inizio (evento o altro)
 + order: 4 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: traffico (string, required) - categoria della notifica
 + actionCategory: clicca qui (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
@@ -638,8 +632,8 @@ Se l'id passato non esiste ritorna un errore.
 + priority: 1 (number, required) - priorità di notifica
 + shortName: Emergenza: incendio (string, required) - nome notifica
 + text: L'incendio ha colpito il settore... (string, required) - descrizione
-+ creationTS: `2018-11-05T19:04:15.735Z` (string) - data di generazione della notifica
-+ mainTS: `2018-11-05T30:04:15.735Z` (string) - data di inizio (evento o altro)
++ creationTS: `2018-11-05T19:04:15.735+0000` (string) - data di generazione della notifica
++ mainTS: `2018-11-05T30:04:15.735+0000` (string) - data di inizio (evento o altro)
 + order: 1 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: emergenza (string, required) - categoria della notifica
 
@@ -661,7 +655,7 @@ Se l'id passato non esiste ritorna un errore.
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
 + text: stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione impianto
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione impianto
 + pof: (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
 + pois (array[id1, id2]) 
 + facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
@@ -672,7 +666,7 @@ Se l'id passato non esiste ritorna un errore.
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
 + text: stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione impianto
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione impianto
 + pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
 + pois: (array[id1, id2])
 + facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
@@ -703,7 +697,7 @@ Se l'id passato non esiste ritorna un errore.
 + level: 0 (number, required) - piano 
 + isAccessible: true (boolean) - accessibilità per invalidi
 + isActive: true (boolean, required) - stato del POF (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POF
++ creationTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di creazione del POF
 + poiType: 1232 (number, required) - tipologia di POF
 
 
@@ -711,25 +705,23 @@ Se l'id passato non esiste ritorna un errore.
 + id: 78869708 (number, required) - identificatore del programma
 + startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
 + endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
-+ shortName: calendario partite (string, required) -
-+ text: Fiorentina-Roma (string)
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
 ### AgendaResDeprecated
 + id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) inizio evento
-+ endDate: `2018-10-01T00:00:00.000Z` (string, required) - data (no time) fine evento
++ startDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) inizio evento
++ endDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) fine evento
 + exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
 + pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata
 + fatherId: 12345643 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
 
 ### AgendaRes1Deprecated
 + id: 12345643 (number, required) - identificatore del programma
-+ startDate: "2018-11-11T00:00:00.000Z" (string, required) - data (no time) inizio evento
-+ endDate: `2018-12-24T00:00:00.000Z` (string, required) - data (no time) fine evento
++ startDate: "2018-11-11T00:00:00.000+0000" (string, required) - data (no time) inizio evento
++ endDate: `2018-12-24T00:00:00.000+0000` (string, required) - data (no time) fine evento
 + exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione Agenda 
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
 + pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata [TODO: definire formato uuid pic]
 + fatherId: 372676487 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
 
@@ -738,7 +730,6 @@ Se l'id passato non esiste ritorna un errore.
 + id: 78869708 (number, required) - timeSlot id
 + timeFrom: `2017-04-14T08:21:45.484+0000` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
 + timeTo: `2017-04-14T08:23:45.484+0000` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ dayOfWeek: SU (string, optional) - giorno di riferimento per il timeSlot. Valori possibili: "SU", "MO", "TU", "WE", "TH", "FR", "SA". I valori sono compatibili con lo standart CalDAV e iCalendar (vedi https://developers.google.com/google-apps/calendar/caldav/v2/guide#specifications , https://tools.ietf.org/html/rfc5545)
 + shortName: primo (string, required) - short name dello slot
 + text: `Fiorentina-Roma` (string, optional) - descrizione del timeSlot
 + pic: `37adab3a-c008-4fc1-9e72-cb28383a31d5.jpeg` (string, required) - uuid ad immagine
@@ -774,7 +765,7 @@ Se l'id passato non esiste ritorna un errore.
 + pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
 + category: food (string, required) - categoria di appartenenza del servizio
 + privacyId: 13 (number, required) - TODO chiedere meglio
-+ creationTS:  `2018-09-01T10:22:43.235Z` (string, required) - TimeStamp di generazione del servizio
++ creationTS:  `2018-09-01T10:22:43.235+0000` (string, required) - TimeStamp di generazione del servizio
 + isAvailable: true (boolean, required) - indica se il servizio è, al momento, disponibile 
 + agendaId: 12432543 (number, optional) - idenitficatore del calendario riferito al servizio
 + pois: (array[PoiServiceRes, PoiServiceRes1]) - id dei poi del servizio
@@ -788,7 +779,7 @@ Se l'id passato non esiste ritorna un errore.
 + level: 2 (number, required) - piano 
 + isAccessible: true (boolean) - accessibilità per invalidi
 + isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ creationTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di creazione del POI
 + poiType: 1232 (number, required) - tipologia di POI
 
 ### PoiServiceRes1
@@ -800,7 +791,7 @@ Se l'id passato non esiste ritorna un errore.
 + level: 2 (number, required) - piano 
 + isAccessible: true (boolean) - accessibilità per invalidi
 + isActive: true (boolean, required) - stato del POI (operativo o meno)
-+ creationTS: `2018-11-05T19:04:15.735Z` (string, required) - data di creazione del POI
++ creationTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di creazione del POI
 + poiType: 1232 (number, required) - tipologia di POI
 
 ### UserFacility
@@ -825,7 +816,7 @@ Se l'id passato non esiste ritorna un errore.
 + shortName: ingresso principale aperto (string, required) - 
 + text: apertura ingresso principale (string, optional) - descrizione info da sapere
 + pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - immagine icona di riferimento per la info
-+ creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione della info
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione della info
 
 
 ### MessagesRes
