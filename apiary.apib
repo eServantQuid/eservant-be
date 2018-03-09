@@ -133,7 +133,6 @@ Ritorna i dati dell'evento appena associato.
 ### PUT
 
 Memorizza dati della condivisione dell'evento `id` sul profilo social di user `username`. 
-**Occorre stabilire come FE passi a BE il tipo di social.**
 
 + Parameters
     + id: 80677375 (number, required) - identificativo dell'evento che si intende associare all'utente
@@ -288,9 +287,6 @@ Componendo invece una request priva di `id` parameter o non ancora registrato al
 + Response 200 (application/json)
 
     + Attributes (CEAgendaRes)
-
-    + Attributes (CEEventListRes)
-        
 
 + Response 500 (application/json)
 
@@ -713,9 +709,10 @@ Se l'id passato non esiste ritorna un errore.
 
 ### AgendaRes 
 + id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-03-07T07:17Z` (string, required) - data (no time) inizio evento ISO datetime
-+ endDate: `2018-07-07T07:17Z` (string, required) - data (no time) fine evento ISO datetime
-+ exception: chiusura eccezionale (string, optional) - eventuale eccezione sul calendario
++ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ shortName: calendario partite (string, required) -
++ text: Fiorentina-Roma (string)
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
 ### AgendaResDeprecated
@@ -739,9 +736,8 @@ Se l'id passato non esiste ritorna un errore.
 
 ### TimeSlotRes
 + id: 78869708 (number, required) - timeSlot id
-+ timeFrom: `2018-05-07T07:00Z` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ timeTo: `2018-05-07T09:00Z` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ exception: chiusura straordinaria (string, optional) - eventuale eccezione sullo slot
++ timeFrom: `2017-04-14T08:21:45.484+0000` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeTo: `2017-04-14T08:23:45.484+0000` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
 + dayOfWeek: SU (string, optional) - giorno di riferimento per il timeSlot. Valori possibili: "SU", "MO", "TU", "WE", "TH", "FR", "SA". I valori sono compatibili con lo standart CalDAV e iCalendar (vedi https://developers.google.com/google-apps/calendar/caldav/v2/guide#specifications , https://tools.ietf.org/html/rfc5545)
 + shortName: primo (string, required) - short name dello slot
 + text: `Fiorentina-Roma` (string, optional) - descrizione del timeSlot
@@ -749,10 +745,10 @@ Se l'id passato non esiste ritorna un errore.
 
 ### TimeSlotRes1
 + id: 12345678 (number, required) - timeSlot id
-+ timeFrom: `2018-03-07T07:00Z` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ timeTo: `2018-03-07T10:00Z` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
-+ exception: chiusura straordinaria (string) - eventuale eccezione sullo slot
-+ dayOfWeek: SU (string) - giorno di riferimento per il timeSlot. Valori possibili: "SU", "MO", "TU", "WE", "TH", "FR", "SA". I valori sono compatibili con lo standart CalDAV e iCalendar (vedi https://developers.google.com/google-apps/calendar/caldav/v2/guide#specifications , https://tools.ietf.org/html/rfc5545)
++ fatherId: 78869708 (number) - father timeslot id
++ timeFrom: `20182017-04-14T08:21:45.484+0000` (string, required) - ISO date-time di inizio timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ timeTo: `2017-04-14T08:21:45.484+0000` (string, required) - ISO date-time di fine timeSlot. Se dayOfWeek valorizzato considerare solo la parte time
++ exception: campo inutilizzabile per maltempo (string) - eventuale eccezione sullo slot
 + shortName: primo (string, required) - short name dello slot
 + text: `Fiorentina-Roma` (string, optional) - descrizione del timeSlot
 + pic: `37adab3a-c008-4fc1-9e72-cb28383a31d5.jpeg` (string, required) - uuid ad immagine
