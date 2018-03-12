@@ -292,28 +292,6 @@ Componendo invece una request priva di `id` parameter o non ancora registrato al
 
  + Attributes (CE230Error)
 
- 
-## /core/agenda/services/{service_id} 
-
-
-### GET
-
-Restituisce il programma di un servizio, o meglio, gli orari di apertura e chiusura di un servizio
- 
-TODO FRG: rimuovere questo servizio?
- 
-+ Parameters
-        
-    + service_id:  80677375 (number, required) - identificativo servizio
- 
-+ Response 200 (application/json)
-
-
-
-+ Response 500 (application/json)
-
- + Attributes (CE230Error)
-
 
 # Group Services
 
@@ -321,13 +299,13 @@ TODO FRG: rimuovere questo servizio?
 
 ### GET
 
-Restituisce i services generici attivi.
+Restituisce i services generici.
 
 Normalmente questi servizi sono tutti di categoria *help*.
 
 + Response 200 (application/json)
   
-    + Attributes (CEServiceSummaryListRes)
+    + Attributes (CEServiceGenericSummaryListRes)
 
 + Response 500 (application/json)
 
@@ -338,6 +316,34 @@ Normalmente questi servizi sono tutti di categoria *help*.
 ### GET
 
 Restituisce informazioni dettagliate sul servizio corrispondente a `serviceId`.
+
+Ogni servizio ha:
+* una privacy associata, da 10 a 50 dove 10 rappresenta nessuna privacy e 50 massima privacy. Il servizio è fruibile solo se l'utente ha accettato un livello di privacy uguale o superiore a quello richiesto
+*  una action associata. I tipi di action si distinguono per la proprietà command, da cui derivano le proprietà 'data' richieste:
+   * **tel**, telefona
+      + shortName: Carabinieri (string, required)
+      + command: tel (string, required)
+      + data: 
+          + phone: 118 (string, required)
+   * **sms**, invia sms con testo precompilato
+      + command: sms (string, required)
+      + data:
+          + phone: 366654 (string, required)
+          + messaggio: Ciao, sono al concerto di Gianni Morandi! (string, required)
+   * **surf**, apri il browser su pagina web
+      + command: surf (string, required)
+      + data:
+          + url: https://google.com (string, required)
+   * **share**, share testo
+      + command: share (string, required) 
+      + data:
+          + text: Covo dei Golosi via ponte a Giogoli Firenze (string, required)
+          + url: https://google.com (string, optional)
+   * **goto**, indicazioni su come raggiungere un servizio. Ritorna una url corrispondente ad una mappa ed, eventualmente, un warning nel caso sia richiesta la localizzazione del dispositivo (es. fotografando barcode)
+      + command: goto (string, required) 
+      + data:
+          + url: http://eservant-sviluppo:8100/map/buildings/1 (string, required) url per richiedere la mappa con i POI da mostrare
+
 
 + Parameters
     
@@ -355,7 +361,7 @@ Restituisce informazioni dettagliate sul servizio corrispondente a `serviceId`.
 
 ### GET
 
-Restituisce i servizi attivi associati all'evento corrispondente a `eventId`. 
+Restituisce i servizi associati all'evento corrispondente a `eventId`. 
 
 Nota bene: un aiuto è da intendersi come un servizio di una particolare categoria (*help*). 
 
@@ -459,6 +465,10 @@ Se l'id passato non esiste ritorna un errore.
 ### CEAgendaRes
 + metadata (MessagesSuccess)
 + payload (AgendaRes)
+
+### CEServiceGenericSummaryListRes
++ metadata (MessagesSuccess)
++ payload (array[ServiceGenericSummaryRes, ServiceGenericSummaryRes1])
 
 ### CEServiceSummaryListRes
 + metadata (MessagesSuccess)
@@ -699,23 +709,6 @@ Se l'id passato non esiste ritorna un errore.
 + fatherId: 8492032 (number, optional) - id di una agenda da cui deriva questa. valorizzato sse valorizzata l'eccezione
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
-### AgendaResDeprecated
-+ id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) inizio evento
-+ endDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) fine evento
-+ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
-+ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata
-+ fatherId: 12345643 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
-
-### AgendaRes1Deprecated
-+ id: 12345643 (number, required) - identificatore del programma
-+ startDate: "2018-11-11T00:00:00.000+0000" (string, required) - data (no time) inizio evento
-+ endDate: `2018-12-24T00:00:00.000+0000` (string, required) - data (no time) fine evento
-+ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
-+ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
-+ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata [TODO: definire formato uuid pic]
-+ fatherId: 372676487 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
 
 
 ### TimeSlotRes
@@ -737,87 +730,62 @@ Se l'id passato non esiste ritorna un errore.
 + pic: `37adab3a-c008-4fc1-9e72-cb28383a31d5.jpeg` (string, required) - uuid ad immagine
 
 
-### ServiceSummaryRes
+### ServiceGenericSummaryRes
 + id: 123 (number, required) - identificatore del servizio
 + shortName: SOS (string, required) - nome del servizio
 + pic: `polizia` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Chiamate di emergenza (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: true (boolean, required) - se il servizio è generico
 + category: help (string, required) tipologia di servizio. Nota bene: un aiuto è da intendersi come un servizio di una 
 particolare categoria (*help*). Dunque il tapping sull'icona aiuto dovrà chiamare questo servizio
 con `category:help`. 
 
-### ServiceSummaryRes1
+### ServiceGenericSummaryRes1
++ id: 124 (number, required) - identificatore del servizio
++ shortName: SOS (string, required) - nome del servizio
++ pic: `vigili_fuoco` (string, required) - uuid immagine (icona) rappresentante il servizio
++ text: Chiamate di emergenza (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: true (boolean, required) - se il servizio è generico
++ category: help (string, required) tipologia di servizio
+
+### ServiceSummaryRes
 + id: 456 (number, required) - identificatore del servizio
 + shortName: Punto di ristoro (string, required) - nome del servizio
 + pic: `caffe` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: false (boolean, required) - se il servizio è generico
++ category: food (string, required) tipologia di servizio
+
+### ServiceSummaryRes1
++ id: 457 (number, required) - identificatore del servizio
++ shortName: Distributore automatico (string, required) - nome del servizio
++ pic: `distributore_auto` (string, required) - uuid immagine (icona) rappresentante il servizio
++ text: Distributore automaticoServices (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: false (boolean, required) - se il servizio è generico
 + category: food (string, required) tipologia di servizio
 
 ### ServiceDetailRes
 + id: 87654321 (number, required) - identificatore del servizio
 + shortName: Punto di ristoro (string, required) - nome del servizio
-+ pic: `caffe.jpg` (string, required) - uuid immagine (icona) rappresentante il servizio
++ pic: `caffe` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: false (boolean, required) - se il servizio è generico
 + category: food (string, required) - categoria di appartenenza del servizio
 + agendaId: 12432543 (number, optional) - idenitficatore del calendario riferito al servizio
-+ actions: (array[ActionRes, ActionRes1, ActionRes101, ActionRes102, ActionRes103, ActionRes104, ActionRes2, ActionRes3, ActionRes4])
-//+ privacyId: 13 (number, required) - TODO chiedere meglio
-//+ creationTS:  `2018-09-01T10:22:43.235+0000` (string, required) - TimeStamp di generazione del servizio
++ action: (ActionRes)
++ privacyId: 10 (number, required) - privacy richiesta per il servizio
+Services
 
 ### ActionRes
 + shortName: Carabinieri (string, required) - nome del servizio
 + command: tel (string, required) comando eseguito, tipo di action
 + data: 
     + phone: 118 (string, required) dati associati al comando
-
-
-### ActionRes1
-+ command: sms (string, required) comando eseguito, tipo di action
-+ data:
-    + phone: 366654 (string, required) dati associati al comando
-    + messaggio: VOTA ANTONIO (string, required)
-
-### ActionRes101
-+ command: sms (string, required) comando eseguito, tipo di action
-+ data:
-    + phone: 366654 (string, required) dati associati al comando
-    + messaggio: VOTA CARLO (string, required)
-
-### ActionRes102
-+ command: sms (string, required) comando eseguito, tipo di action
-+ data:
-    + phone: 366654 (string, required) dati associati al comando
-    + messaggio: VOTA MARCANTONIO (string, required)
-
-
-### ActionRes103
-+ command: sms (string, required) comando eseguito, tipo di action
-+ data:
-    + phone: 366654 (string, required) dati associati al comando
-    + messaggio: Ciao, sono al concerto di Gianni Morandi! (string, required)
-
-### ActionRes104
-+ command: sms (string, required) comando eseguito, tipo di action
-+ data:
-    + phone: 366654 (string, required) dati associati al comando
-    + messaggio: Sono qui <coordinate geo o url poi> (string, required)
-
-
-### ActionRes2
-+ command: surf (string, required) comando eseguito, tipo di action
-+ data:
-    + url: https://google.com (string, required) dati associati al comando
-
-### ActionRes3
-+ command: share (string, required) 
-+ data:
-    + text: Covo dei Golosi via ponte a Giogoli Firenze (string, required)
-    + url: https://google.com (string, optional)
-
-### ActionRes4
-+ command: goto (string, required) 
-+ data:
-    + text: TODO rivedere (string, required)
 
 
 ### PoiServiceRes
@@ -919,3 +887,21 @@ con `category:help`.
 + services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
 + agenda : (AgendaRes1Deprecated, required) - agenda dell'evento
 + aggregationFields : (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
+
+### AgendaResDeprecated
++ id: 78869708 (number, required) - identificatore del programma
++ startDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) inizio evento
++ endDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) fine evento
++ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
++ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata
++ fatherId: 12345643 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
+
+### AgendaRes1Deprecated
++ id: 12345643 (number, required) - identificatore del programma
++ startDate: "2018-11-11T00:00:00.000+0000" (string, required) - data (no time) inizio evento
++ endDate: `2018-12-24T00:00:00.000+0000` (string, required) - data (no time) fine evento
++ exception: chiusura straordinaria (string) - eventuale eccezione sul calendario
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione Agenda 
++ pic : `98e031e9-a3c1-4087-97c3-27bc373a9855.jpeg`  (string, required) - nome file immagine associata [TODO: definire formato uuid pic]
++ fatherId: 372676487 (number, optional) - se exception valorizzata, id agenda a cui è riferita l'eccezione
