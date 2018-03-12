@@ -292,41 +292,57 @@ Componendo invece una request priva di `id` parameter o non ancora registrato al
 
  + Attributes (CE230Error)
 
-# Group Services
+ 
+## /core/agenda/services/{service_id} 
 
-## /core/events/{id}/services
 
 ### GET
 
-Restituisce informazioni riassuntive di tutti servizi associati all'evento specificato 
-da `id`. Nota bene: un aiuto è da intendersi come un servizio di una particolare categoria
-(*help*). 
-
+Restituisce il programma di un servizio, o meglio, gli orari di apertura e chiusura di un servizio
+ 
+TODO FRG: rimuovere questo servizio?
+ 
 + Parameters
-    
-    + id: 80677375 (number, required) - identificativo dell'evento a cui sono associati i servizi cercati
+        
+    + service_id:  80677375 (number, required) - identificativo servizio
+ 
++ Response 200 (application/json)
 
+
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
+
+# Group Services
+
+## /core/services/
+
+### GET
+
+Restituisce i services generici attivi.
+
+Normalmente questi servizi sono tutti di categoria *help*.
 
 + Response 200 (application/json)
-   
+  
     + Attributes (CEServiceSummaryListRes)
 
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
 
-## /core/events/{event_id}/services/{service_id}
+## /core/services/{serviceId}
 
 ### GET
 
-Restituisce dettaglio di servizio identificato da `service_id` di un evento specificato da 
-`event_id`. 
+Restituisce informazioni dettagliate sul servizio corrispondente a `serviceId`.
 
 + Parameters
     
-    + service_id: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
-    + event_id: 98765221 (number, required) - identificativo dell'evento associato a servizio di cui si cerca dettaglio
-    
+    + serviceId: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
+
 + Response 200 (application/json)
    
     + Attributes (CEServiceDetailRes)
@@ -334,22 +350,18 @@ Restituisce dettaglio di servizio identificato da `service_id` di un evento spec
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
- 
 
-
-## /core/events/{id}/services/{category}
+## /core/services/events/{eventId}
 
 ### GET
 
-Restituisce informazioni riassuntive di tutti servizi di una determinata `category`, associata 
-all'evento specificato da `id`. Nota bene: un aiuto è da intendersi come un servizio di una 
-particolare categoria (*help*). Dunque il tapping sull'icona aiuto dovrà chiamare questo servizio
-con `category:help`. 
+Restituisce i servizi attivi associati all'evento corrispondente a `eventId`. 
+
+Nota bene: un aiuto è da intendersi come un servizio di una particolare categoria (*help*). 
 
 + Parameters
     
-    + category: help (string, required) - tipo dei servizi cercati
-    + id: 80677375 (number, required) - identificativo dell'evento a cui sono associati i servizi cercati
+    + eventId: 80677375 (number, required) - identificativo dell'evento a cui sono associati i servizi cercati
 
 
 + Response 200 (application/json)
@@ -359,6 +371,7 @@ con `category:help`.
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
+
 
 
 # Group News  
@@ -512,37 +525,6 @@ Se l'id passato non esiste ritorna un errore.
 + isFollow: true (boolean, required) - partecipazione dello user all'evento 
 + event(EventRes1) 
 
-### EventResDeprecated
-+ Rimuovere?
-+ id: 78869707 (number, required) - identificatore evento
-+ shortName:  Corso di Master in IoT (string, required) - nome evento
-+ smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
-+ bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
-+ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
-+ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
-+ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
-+ facilityId: 34323425 (number, required) - identificatore di impianto 
-+ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
-+ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
-+ agenda : (AgendaResDeprecated, required) - agenda dell'evento
-+ aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
-
-### EventResDeprecated1 
-+ Rimuovere?
-+ id: 98765432 (number, required) - identificatore evento
-+ shortName:  Vivi il PIN (string, required) - nome evento
-+ smallPic: `5b721f23-650d-408e-bc49-bdfa2f8d7217.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
-+ bigPic: `6a7ebf2a-f0a9-47fd-8b09-b35ca0100a2b.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
-+ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
-+ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
-+ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
-+ facilityId: (FacilityRes, required) - impianto
-+ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
-+ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
-+ agenda : (AgendaRes1Deprecated, required) - agenda dell'evento
-+ aggregationFields : (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
 
 ### EventFacSummaryRes
 + id: 78869707 (number, required) - identificatore evento
@@ -707,6 +689,16 @@ Se l'id passato non esiste ritorna un errore.
 + endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
+
+### AgendaServiceRes 
++ id: 78869708 (number, required) - identificatore del programma
++ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ dayOfWeek: MO (string, optional) valorizzato se evento ricorrente
++ exception: chiusura straordinaria (string, optional) - eventuale eccezione sul calendario
++ fatherId: 8492032 (number, optional) - id di una agenda da cui deriva questa. valorizzato sse valorizzata l'eccezione
++ timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
+
 ### AgendaResDeprecated
 + id: 78869708 (number, required) - identificatore del programma
 + startDate: `2018-10-01T00:00:00.000+0000` (string, required) - data (no time) inizio evento
@@ -746,29 +738,96 @@ Se l'id passato non esiste ritorna un errore.
 
 
 ### ServiceSummaryRes
-+ id: 12345678 (number, required) - identificatore del servizio
++ id: 123 (number, required) - identificatore del servizio
 + shortName: SOS (string, required) - nome del servizio
++ pic: `polizia` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Chiamate di emergenza (string, optional) - descrizione del servizio
-+ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
++ category: help (string, required) tipologia di servizio. Nota bene: un aiuto è da intendersi come un servizio di una 
+particolare categoria (*help*). Dunque il tapping sull'icona aiuto dovrà chiamare questo servizio
+con `category:help`. 
 
 ### ServiceSummaryRes1
-+ id: 87654321 (number, required) - identificatore del servizio
++ id: 456 (number, required) - identificatore del servizio
 + shortName: Punto di ristoro (string, required) - nome del servizio
++ pic: `caffe` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
-+ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
-
++ category: food (string, required) tipologia di servizio
 
 ### ServiceDetailRes
 + id: 87654321 (number, required) - identificatore del servizio
 + shortName: Punto di ristoro (string, required) - nome del servizio
++ pic: `caffe.jpg` (string, required) - uuid immagine (icona) rappresentante il servizio
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
-+ pic: `9f4d310e-4b09-4745-a603-b1f0c83d292f.png` (string, required) - icona del servizio
 + category: food (string, required) - categoria di appartenenza del servizio
-+ privacyId: 13 (number, required) - TODO chiedere meglio
-+ creationTS:  `2018-09-01T10:22:43.235+0000` (string, required) - TimeStamp di generazione del servizio
-+ isAvailable: true (boolean, required) - indica se il servizio è, al momento, disponibile 
 + agendaId: 12432543 (number, optional) - idenitficatore del calendario riferito al servizio
-+ pois: (array[PoiServiceRes, PoiServiceRes1]) - id dei poi del servizio
++ actions: (array[ActionRes, ActionRes1, ActionRes101, ActionRes102, ActionRes103, ActionRes104, ActionRes2, ActionRes3, ActionRes4])
+//+ privacyId: 13 (number, required) - TODO chiedere meglio
+//+ creationTS:  `2018-09-01T10:22:43.235+0000` (string, required) - TimeStamp di generazione del servizio
+
+### ActionRes
++ shortName: Carabinieri (string, required) - nome del servizio
++ command: tel (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 118 (string, required) dati associati al comando
+]
+
+### ActionRes1
++ command: sms (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 366654 (string, required) dati associati al comando
+    + messaggio: VOTA ANTONIO (string, required)
+]
+
+### ActionRes101
++ command: sms (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 366654 (string, required) dati associati al comando
+    + messaggio: VOTA CARLO (string, required)
+]
+
+### ActionRes102
++ command: sms (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 366654 (string, required) dati associati al comando
+    + messaggio: VOTA MARCANTONIO (string, required)
+]
+
+
+### ActionRes103
++ command: sms (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 366654 (string, required) dati associati al comando
+    + messaggio: Ciao, sono al concerto di Gianni Morandi! (string, required)
+]
+
+### ActionRes104
++ command: sms (string, required) comando eseguito, tipo di action
++ data: [
+    + phone: 366654 (string, required) dati associati al comando
+    + messaggio: Sono qui <coordinate geo o url poi> (string, required)
+]
+
+
+### ActionRes2
++ command: surf (string, required) comando eseguito, tipo di action
++ data: [
+    + url: https://google.com (string, required) dati associati al comando
+]
+
+### ActionRes3
++ command: share (string, required) 
++ data: [
+    + text: Covo dei Golosi via ponte a Giogoli Firenze (string, required)
+    + url: https://google.com (string, optional)
+]
+
+### ActionRes4
++ command: goto (string, required) 
++ data: [
+    + text: TODO rivedere (string, required)
+]
+
+
 
 ### PoiServiceRes
 + id: 1 (number, required) - id Point Of Interest
@@ -836,3 +895,36 @@ Se l'id passato non esiste ritorna un errore.
 + type: ERROR (string, required) - Tipologia del messaggio
 + target: Modal (string, required) - Tipologia di rappresentazione del messaggio
 + errorCode: 230 (number, required) - Codice di errore
+
+
+### EventResDeprecated
++ Rimuovere?
++ id: 78869707 (number, required) - identificatore evento
++ shortName:  Corso di Master in IoT (string, required) - nome evento
++ smallPic: `648521f1-fe15-4408-b489-0cecbcd97e76.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
++ bigPic: `4b58bc09-8630-4a8f-ab10-3a230df72369.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ facilityId: 34323425 (number, required) - identificatore di impianto 
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
++ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
++ agenda : (AgendaResDeprecated, required) - agenda dell'evento
++ aggregationFields: (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
+
+### EventResDeprecated1 
++ Rimuovere?
++ id: 98765432 (number, required) - identificatore evento
++ shortName:  Vivi il PIN (string, required) - nome evento
++ smallPic: `5b721f23-650d-408e-bc49-bdfa2f8d7217.png` (string, optional) - uuid immagine (formato piccolo) evento in NAS (Network Attached Storage)
++ bigPic: `6a7ebf2a-f0a9-47fd-8b09-b35ca0100a2b.jpeg` (string, required) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
++ text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
++ isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
++ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione evento
++ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ facilityId: (FacilityRes, required) - impianto
++ pois : (array[PoiEvFacRes, PoiEvFacRes1], required) - poi associati all'evento 
++ services: (array[ServiceSummaryRes, ServiceSummaryRes1], required) - poi associati all'evento 
++ agenda : (AgendaRes1Deprecated, required) - agenda dell'evento
++ aggregationFields : (array[EventAggregatorRes, EventAggregatorRes1], required) - aggregatori di eventi
