@@ -275,7 +275,20 @@ allo user, specificato da `username`. Ritorna la lista degli eventi associati al
 ### GET
 
 Restituisce il programma di un evento.
-Componendo invece una request priva di `id` parameter o non ancora registrato al sistema viene ritornato un messaggio d'errore, ad ora, generico.
+Il campo 'id' nella request è obbligatoria.
+
+Il programma dell'evento è formato da:
+* Una data di inizio e una data di fine espresso nel formato ISO-8601 dove è valorizzata solo la data e non l'orario,
+* Una lista di TimeSlots che rappresentano le varie attività svolte in tutta la durata dell'evento.
+  * **TimeSlot**, singola attività nel programma di un evento
+    + timeFrom: 2017-04-14T08:21:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
+    + timeTo: 2017-04-14T08:23:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
+    + shortName: corso di cucina (string, required) - nome attività
+    + text: corso di cucina giapponese,... (string, optional) - descrizione
+    + pic: 648521f1-fe15-4408-b489-0cecbcd97e76.png (string, optional) - immagine attività
+  * Se devo esprimere un'eccezione su un TimeSlot allora nella lista dei TimeSlot ne sarà presente anche uno con gli attributi exception e fatherId valorizzati, dove fatherId è l'id del TimeSlot in cui si verifica l'eccezione e exception è una stringa che spiega l'eccezione,
+* Un attributo dayOfWeek che se valorizzato indica che l'evento è ricorrente,
+* Gli attributi fatherId ed exception che sono valorizzati sse devo esprimere un'eccezione sul programma, sarà quindi presente un secondo programma che avrà come fatherId il programma in cui va generata l'eccezione.
 
 + Parameters
     + id: 24146414 (number, required) - identificativo del programma di evento che si necessita 
@@ -379,6 +392,33 @@ Nota bene: un aiuto è da intendersi come un servizio di una particolare categor
  + Attributes (CE230Error)
 
 
+# Group QR Position
+
+## /core/set-qr-position
+
+### POST
+
+* Questo servizio viene usato quando occorre settare la posizione via qrcode.
+* L'utente può quindi scansionare un QrCode inviando così una request al server con i seguenti parametri:
+  * **poiId**: id del Poi in cui è posto il QrCode
+  * **deviceToken**: id del dispositivo che ha fatto la scansione del QrCode
+
++ Parameters
+   + poiId (number,required) - identificativo del poi
+   + deviceToken (string, required) - identificativo del telefono
+
++ Request (application/json)
+    + Parameters
+        + poiId (number, required) 
+        + deviceToken (string, required)
+
++ Response 200 (application/json)
+    
+  + Attributes (CEPositionRes) 
+  
++ Response 500 (application/json)
+  
+   + Attributes (CEServerError)
 
 # Group News  
 
@@ -464,7 +504,7 @@ Se l'id passato non esiste ritorna un errore.
 
 ### CEAgendaRes
 + metadata (MessagesSuccess)
-+ payload (AgendaRes)
++ payload (array[AgendaRes,AgendaExceptionRes])
 
 ### CEServiceGenericSummaryListRes
 + metadata (MessagesSuccess)
@@ -485,6 +525,11 @@ Se l'id passato non esiste ritorna un errore.
 ### CENewsListRes
 + metadata (MessagesSuccess)
 + payload (NewsRes)
+
+
+### CEPositionRes
++ metadata (MessagesSuccess)
++ payload (PositionRes)
 
 ### MessagesSuccess
 + messages (array[string]) - Nessun messaggio di errore
@@ -604,6 +649,15 @@ Se l'id passato non esiste ritorna un errore.
 + poiType: 1232 (number, required) - tipologia di POI
 
 
+### PositionRes
++ id: 378249 (number, required) - id del poi 
++ latitude: 27.3 (number, required) - latitudine
++ longitude: 35.564 (number, required) - longitudine
++ level: 1 (number, required) - piano o livello
++ deviceToken: 'fOIT6h15i7U:APA91bE90sn87vqvUQv2eMWcKA0z626Bz-ypCI-J_I5f3gWEIr7ISLqE1qZszSGWOcNF-EcO3yiCf5mWv6-S5sTBB4oa916lhpd_6oSFGDMo5UU-4LnXYFkAOR8bLDQdBp0a6EB8M3f0' (string, required) 
++ measureTS: `2018-11-05T19:04:15.735+0000` (string, required) - data di associazione utente-posizione
+
+
 ### NotificationRes
 
 + id: 80768151 (number, required) - identificatore notifica
@@ -694,11 +748,18 @@ Se l'id passato non esiste ritorna un errore.
 
 
 ### AgendaRes 
-+ id: 78869708 (number, required) - identificatore del programma
++ id: 18869708 (number, required) - identificatore del programma
 + startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
 + endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
+
+### AgendaExceptionRes 
++ id: 28869708 (number, required) - identificatore del programma
++ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ exception: eccezione che cancella l'intero programma (string, required)
++ fatherId: 18869708 (number, required) - identificatore del programma su cui generare l'eccezione
 
 ### AgendaServiceRes 
 + id: 78869708 (number, required) - identificatore del programma
@@ -854,6 +915,19 @@ Services
 + type: ERROR (string, required) - Tipologia del messaggio
 + target: Modal (string, required) - Tipologia di rappresentazione del messaggio
 + errorCode: 230 (number, required) - Codice di errore
+
+### CEServerError
+- metadata (object)
+  - messages (array[ServerErrorMessage]) - Lista di messaggi 
+
+### ServerErrorMessage
+
++ message: GENERAL_ERROR (string, required) - descrizione messaggio
++ title: Errore (string, required) - Nome messaggio
++ type: error (string, required) - Tipologia del messaggio
++ target: Modal (string, required) - Tipologia di rappresentazione del messaggio
++ errorCode: -1 (number, required) - Codice di errore
+
 
 
 ### EventResDeprecated
