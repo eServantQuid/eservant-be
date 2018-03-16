@@ -13,7 +13,6 @@ Microservizio che offre le funzionalità core di eServant.
 ### GET
 
 Ritorna la lista di tutti gli eventi memorizzati nel sistema. 
-La richiesta non ha vincoli particolari di formato. 
 
 + Request (application/json)
 
@@ -30,7 +29,12 @@ La richiesta non ha vincoli particolari di formato.
 
 Restituisce il dettaglio dell'evento corrispondente all' `id` passato.
 
-Se l'id passato non esiste ritorna un errore.
+Il parametro in input *necessario* è:
+* `id`: identificativo dell'evento di cui si desidera visualizzare dettaglio.
+
+Tra le informazioni del dettaglio evento si hanno:
+* `isSpot`: (boolean, required) indica se evento è puntuale (cioè si manifesta isolatamente e non in modo ripetitivo);
+* `aggregationFields`: (enum(string), required), indica delle proprietà caratterizzanti dell'evento, che permettono a FE di categorizzarlo.
 
 + Parameters
     + id (number, required) - identificativo dell'evento 
@@ -54,8 +58,10 @@ Se l'id passato non esiste ritorna un errore.
       
 ### GET 
 
-Ritorna gli eventi correnti o futuri associati all'utente.
-Componendo invece una request priva di username parameter o non ancora registrato al sistema, viene ritornato un messaggio d'errore, ad ora, generico.
+Ritorna gli eventi correnti o futuri associati all'utente (lista **"I miei eventi"**).
+
+Il parametro in input *necessario* è:
+* `username`: identificativo dell'utente di cui si desidera visualizzare la lista de **"I miei eventi"**.
 
 + Parameters
     + username - username dell'utente di cui si intende reperire gli eventi 
@@ -79,14 +85,17 @@ Componendo invece una request priva di username parameter o non ancora registrat
 ### GET
 
 Restituisce la lista dei ***primi 10*** eventi ordinati in base ad un algoritmo basato sull'importanza dell'evento.
-I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventAggregator`, `timeFrom` e `timeTo`.
-
+I parametri in input *necessari*, in questo caso **filtri**, sono:
+* `ShortName`: (string, optional) - nome dell'evento; 
+* `EventAggregator`: (string, optional) - tipo di evento;
+* `TimeFrom`: (string, optional) - ora di inizio dell'evento nel formato ISO-8601;
+* `TimeTo`: (string, optional) - ora di fine dell'evento nel formato ISO-8601.
 
 + Attributes
-    + Shortname: "Master in IoT" (string, required) - nome dell'evento 
+    + ShortName: "Master in IoT" (string, optional) - nome dell'evento 
     + EventAggregator: "Corso di laurea" (string, optional) - tipo di evento
-    + Timefrom: `2018-10-01T08:30:00.603Z` (string, optional) - ora di inizio
-    + Timeto: `2018-10-12T15:30:00.603Z` (string, optional) - ora di fine
+    + TimeFrom: `2018-10-01T08:30:00.603Z` (string, optional) - ora di inizio
+    + TimeTo: `2018-10-12T15:30:00.603Z` (string, optional) - ora di fine
 
 + Response 200 (application/json)
 
@@ -102,7 +111,7 @@ I parametri che costituiscono il filtro degli eventi sono: `shortname`, `eventAg
 
 ### PUT
 
-Associa l'evento, il cui `id` è fornito in input, allo user, con `username` passato.
+Effettua operazione **aggiungi a "I miei Eventi"**; associa l'evento, il cui `id` è fornito in input, allo user, con `username` passato.
 Ritorna i dati dell'evento appena associato. 
 
 
@@ -132,7 +141,14 @@ Ritorna i dati dell'evento appena associato.
 
 ### PUT
 
-Memorizza dati della condivisione dell'evento `id` sul profilo social di user `username`. 
+Effettua condivisione dell'evento `id` sul profilo social di un utente.
+
+I parametri in input *necessari* sono:
+* `id`: (number, required) identificativo dell'evento da condividere;
+* `username`: (string, required) identificativo dello user sul cui social avverrà la condivisione;
+* `socialName`: (string, required) nome del social su cui avrà luogo la condivisione; deve essere specificato nel **body** della richiesta. Può assumere i seguenti valori:
+    * **FACEBOOK**;
+    * **INSTAGRAM**.
 
 + Parameters
     + id: 80677375 (number, required) - identificativo dell'evento
@@ -158,13 +174,29 @@ Memorizza dati della condivisione dell'evento `id` sul profilo social di user `u
 
 # Group Notifications
 
+
 ## /core/notifications 
 
 [***STABLE***]
 
-### GET
+### GET 
 
 Ritorna la lista di tutte le notifiche. 
+
+<a name="notification"></a>
+Ciascuna notifica ha:
+* `priority`: (number, required) da 10 a 30 è l'indicatore di ordine per gravità delle notifiche, indicando:
+    * **10**: grave;
+    * **20**: intermedio;
+    * **30**: basso.
+    * `order`: (number, required) indica l'ordinamento in cui visualizzare la notifica. Maggiore è questo intero più recente è la notifica, l’ultima rimane sempre più in alto.
+* `actionActivityId`: (string, optional), identificativo dell'azione riferibile alla notifica, è utile nel chiamare il servizio `/core/notification-actions/{id}`.
+* `actionCategory`: (string, optional) **required** se è definito `actionActivityId`. Rappresenta il tipo di azione associabile alla notifica tra le seguenti:
+    * **GOTO**: notifica che visualizza bottone per apertura di un link;
+    * **PARTECIPATE**: notifica che visualizza bottone di partecipazione ad attività segnalata;
+    * **REPLY**: notifica che visualizza bottone per rispondere a messaggio;
+
+* `actionLink`: (string, optional), link da aprire quando `actionCategory` è **GOTO**.
 
 + Response 200 (application/json)
 
@@ -177,19 +209,48 @@ Ritorna la lista di tutte le notifiche.
 
 ### PUT 
 
-Processa operazione richiesta il cui `id` è passato in input, ritornando `payload` in input. 
+Esegue `notificationAction` indentificata da `id` in input e ritorna le informazioni riferite alla
+action appena eseguita. 
+
+Il parametro in input *necessario* è:
+* `id`: (number, required) identificativo della notification-action che si intende eseguire.
+
+Il parametro `actionValue` (string, optional) può essere valorizzata come segue:
+* un'espressione regolare di lunghezza minore od uguale a **140** caratteri alfanumerici ASCII, qualora l'
+`actionCategory` della notifica associata sia [**REPLY**](#notification).
+* una stringa di lunghezza pari ad **1** qualora l'`actionCategory` della notifica associata sia
+del tipo [**PARTECIPATE**](#notification). La stringa codificherà un booleano con la seguente semantica:
+    * *\"0\"* qualora l'utente che risponde alla notifica non intenda partecipare all'evento;
+    * *\"1\"* qualora l'utente  che risponde alla notifica esprima la volontà di partecipare all'evento.
+
+**N.B.**: se l'`actionCategory` della notifica associata è **GOTO**, `actionValue` non deve essere valorizzato.  
 
 + Parameters
-    + id - identificativo dell' azione da effettuare, in risposta di una notifica 
+    + id: 10  (number, required) - identificativo dell' azione da effettuare, in risposta di una notifica 
 
-+ Request (application/json)
-    + Parameters
-        + id: 10
-    + Attributes (CENotificationActionReq)
-        
++ Request GOTO (application/json)
+    
+    + Attributes ()
+
 + Response 200 (application/json)
 
-    + Attributes (CENotificationActionRes)
+    + Attributes (CENotificationActionGoToRes)
+
++ Request REPLY (application/json)
+
+    + Attributes (NotificationActionReplyReq)
+    
++ Response 200 (application/json)
+
+    + Attributes (CENotificationActionReplyRes)
+
++ Request PARTECIPATING USER (application/json)
+
+    + Attributes (NotificationActionPartecipateYesReq)
+
++ Response 200 (application/json)
+
+    + Attributes (CENotificationActionPartecipateYesRes)
 
 + Response 500 (application/json)
 
@@ -222,6 +283,8 @@ Ritorna la lista di tutti gli impianti.
 ### GET 
 
 Ritorna il dettaglio della facility identificata da `id` in input.
+
+
 
 + Parameters
     + id - identificativo della facility che si necessita 
@@ -280,15 +343,15 @@ Il campo 'id' nella request è obbligatoria.
 Il programma dell'evento è formato da:
 * Una data di inizio e una data di fine espresso nel formato ISO-8601 dove è valorizzata solo la data e non l'orario,
 * Una lista di TimeSlots che rappresentano le varie attività svolte in tutta la durata dell'evento.
-  * **TimeSlot**, singola attività nel programma di un evento
-    + timeFrom: 2017-04-14T08:21:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
-    + timeTo: 2017-04-14T08:23:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
-    + shortName: corso di cucina (string, required) - nome attività
-    + text: corso di cucina giapponese,... (string, optional) - descrizione
-    + pic: 648521f1-fe15-4408-b489-0cecbcd97e76.png (string, optional) - immagine attività
-  * Se devo esprimere un'eccezione su un TimeSlot allora nella lista dei TimeSlot ne sarà presente anche uno con gli attributi exception e fatherId valorizzati, dove fatherId è l'id del TimeSlot in cui si verifica l'eccezione e exception è una stringa che spiega l'eccezione,
-* Un attributo dayOfWeek che se valorizzato indica che l'evento è ricorrente,
-* Gli attributi fatherId ed exception che sono valorizzati sse devo esprimere un'eccezione sul programma, sarà quindi presente un secondo programma che avrà come fatherId il programma in cui va generata l'eccezione.
+  * **`TimeSlot`**, singola attività nel programma di un evento
+    + `timeFrom`: 2017-04-14T08:21:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
+    + `timeTo`: 2017-04-14T08:23:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
+    + `shortName`: corso di cucina (string, required) - nome attività
+    + `text`: corso di cucina giapponese,... (string, optional) - descrizione
+    + `pic`: 648521f1-fe15-4408-b489-0cecbcd97e76.png (string, optional) - immagine attività
+  * Se devo esprimere un'eccezione su un `TimeSlot` allora nella lista dei TimeSlot ne sarà presente anche uno con `exception` e `fatherId` valorizzati, dove `fatherId` è l'id del `TimeSlot` in cui si verifica l'eccezione e `exception` è una stringa che spiega l'eccezione,
+* `dayOfWeek` che se valorizzato indica che l'evento è ricorrente,
+* `fatherId` ed `exception` che sono valorizzati sse devo esprimere un'eccezione sul programma, sarà quindi presente un secondo programma che avrà come `fatherId` il programma in cui va generata l'eccezione.
 
 + Parameters
     + id: 24146414 (number, required) - identificativo del programma di evento che si necessita 
@@ -331,33 +394,37 @@ Normalmente questi servizi sono tutti di categoria *help*.
 Restituisce informazioni dettagliate sul servizio corrispondente a `serviceId`.
 
 Ogni servizio ha:
-* una privacy associata, da 10 a 50 dove 10 rappresenta nessuna privacy e 50 massima privacy. Il servizio è fruibile solo se l'utente ha accettato un livello di privacy uguale o superiore a quello richiesto
-*  una action associata. I tipi di action si distinguono per la proprietà command, da cui derivano le proprietà 'data' richieste:
+* una `privacy` associata, da 10 a 50 dove 10 rappresenta nessuna privacy e 50 massima privacy. Il servizio è fruibile solo se l'utente ha accettato un livello di privacy uguale o superiore a quello richiesto
+* una `action` associata. I tipi di `action` si distinguono per la proprietà `command`, da cui derivano le proprietà `data` richieste:
    * **tel**, telefona
-      + shortName: Carabinieri (string, required)
-      + command: tel (string, required)
-      + data: 
-          + phone: 999 (string, required)
+      + `shortName`: Carabinieri (string, required)
+      + `command`: tel (string, required)
+      + `data`: 
+          + `phone`: 999 (string, required)
    * **sms**, invia sms con testo precompilato
-      + command: sms (string, required)
-      + data:
-          + phone: 366654 (string, required)
-          + messaggio: Ciao, sono al concerto di Gianni Morandi! (string, required)
+      + `command`: sms (string, required)
+      + `data`:
+          + `phone`: 366654 (string, required)
+          + `messaggio`: Ciao, sono al concerto di Gianni Morandi! (string, required)
    * **surf**, apri il browser su pagina web
-      + command: surf (string, required)
-      + data:
-          + url: https://google.com (string, required)
+      + `command`: surf (string, required)
+      + `data`:
+          + `url`: https://google.com (string, required)
    * **share**, share testo
-      + command: share (string, required) 
-      + data:
-          + text: Covo dei Golosi via ponte a Giogoli Firenze (string, required)
-          + url: https://google.com (string, optional)
-   * **goto**, indicazioni su come raggiungere un servizio. Ritorna una url corrispondente ad una mappa ed, eventualmente, un warning nel caso sia richiesta la localizzazione del dispositivo (es. fotografando barcode)
-      + command: goto (string, required) 
-      + data:
-          + url: http://eservant-sviluppo:8100/map/buildings/1 (string, required) url per richiedere la mappa con i POI da mostrare
-
-
+      + `command`: share (string, required) 
+      + `data`:
+          + `text`: Covo dei Golosi via ponte a Giogoli Firenze (string, required)
+          + `url`: https://google.com (string, optional)
+   * **goto**, indicazioni su come raggiungere un servizio. Ritorna una url corrispondente ad una mappa ed, eventualmente, un warning nel caso sia richiesta la localizzazione del dispositivo (es. scannerizzando barcode)
+      + `command`: goto (string, required) 
+      + `data`:
+          + `url`: http://eservant-sviluppo:8100/map/buildings/1 (string, required) url per richiedere la mappa con i POI da mostrare
+* una `category` che rappresenta la categoria del servizio, i possibili valori saranno:
+  * **MOBILITY**: se servizio legato alla mobilità;
+  * **SECURITY**: se servizio legato alla sicurezza;
+  * **FOOD**: se servizio legato alla vendita/consumo di prodotti alimentari.
+  * **HELP**: se servizio di aiuto  [**solo lato BE**], lato FE questo si realizza gli HELP coincidono con i servizi, che hanno `isGeneric` impostato a true.
+  
 + Parameters
     
     + serviceId: 82132332 (number, required) - identificativo del servizio di cui si cerca dettaglio
@@ -375,8 +442,6 @@ Ogni servizio ha:
 ### GET
 
 Restituisce i servizi associati all'evento corrispondente a `eventId`. 
-
-Nota bene: un aiuto è da intendersi come un servizio di una particolare categoria (*help*). 
 
 + Parameters
     
@@ -400,8 +465,8 @@ Nota bene: un aiuto è da intendersi come un servizio di una particolare categor
 
 * Questo servizio viene usato quando occorre settare la posizione via qrcode.
 * L'utente può quindi scansionare un QrCode inviando così una request al server con i seguenti parametri:
-  * **poiId**: id del Poi in cui è posto il QrCode
-  * **deviceToken**: id del dispositivo che ha fatto la scansione del QrCode
+  * **`poiId`**: id del Poi in cui è posto il QrCode
+  * **`deviceToken`**: id del dispositivo che ha fatto la scansione del QrCode
 
 + Parameters
    + poiId (number,required) - identificativo del poi
@@ -484,15 +549,19 @@ Se l'id passato non esiste ritorna un errore.
 
 ### CENotificationListRes
 + metadata (MessagesSuccess)
-+ payload (array[NotificationRes, NotificationRes1])
++ payload (array[NotificationRes, NotificationRes1, NotificationRes2, NotificationRes3])
 
-### CENotificationActionReq
+### CENotificationActionGoToRes
 + metadata (MessagesSuccess)
-+ payload (NotificationActionReq)
++ payload (NotificationActionGoToRes)
 
-### CENotificationActionRes
+### CENotificationActionReplyRes
 + metadata (MessagesSuccess)
-+ payload (NotificationActionRes)
++ payload (NotificationActionReplyRes)
+
+### CENotificationActionPartecipateYesRes
++ metadata (MessagesSuccess)
++ payload (NotificationActionPartecipateYesRes)
 
 ### CEFacilityRes
 + metadata (MessagesSuccess)
@@ -512,7 +581,7 @@ Se l'id passato non esiste ritorna un errore.
 
 ### CEServiceSummaryListRes
 + metadata (MessagesSuccess)
-+ payload (array[ServiceSummaryRes, ServiceSummaryRes1])
++ payload (array[ServiceSummaryRes, ServiceSummaryRes1, ServiceSummaryRes2])
 
 ### CEServiceDetailRes
 + metadata (MessagesSuccess)
@@ -549,14 +618,13 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `2431521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: Il corso ha lo scopo di introdurre gli studenti ai seguenti argomenti... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
-+ endTS: `2018-09-01T10:22:43.235+0000` (string, required) - data fine evento (ridondata con Agenda)
++ startTS: `2018-09-01T10:22:00.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2020-07-22T13:30:00.235+0000` (string, required) - data fine evento (ridondata con Agenda)
 + facilityId: 12345678 (number, required) - id impianto
 + aggregationFields: (array[enum[string]], required) - aggregatori di eventi
     + Members
         + `VIVI_IL_PIN`
-        + `MUSICA_CLASSICA`
-        + `MUSICA_ROCK`
+        + `UNIVERSITA'`
 
 ### EventRes1
 + id: 21345678 (number, required) - identificatore evento
@@ -565,8 +633,8 @@ Se l'id passato non esiste ritorna un errore.
 + bigPic: `648521f1-fe15-4408-b489-0cecbcd9773.png` (string, optional) - uuid immagine (formato grande) evento in NAS (Network Attached Storage)
 + text: L'evento ha lo scopo di... (string, required) - descrizione dell'evento
 + isSpot: true (boolean, required) - indica se ha calendario finito (conferenza o concerto)
-+ startTS: `2018-09-01T10:22:43.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
-+ endTS: `2018-09-01T10:22:43.235+0000` (string, required) - data fine evento (ridondata con Agenda)
++ startTS: `2018-09-01T08:30:00.235+0000` (string, required) - data inizio evento (ridondata con Agenda)
++ endTS: `2019-07-22T18:00:00.235+0000` (string, required) - data fine evento (ridondata con Agenda)
 + facilityId: 12345678 (number, required) - id impianto
 + aggregationFields: (array[enum[string]], required) - aggregatori di eventi
     + Members
@@ -660,22 +728,8 @@ Se l'id passato non esiste ritorna un errore.
 
 ### NotificationRes
 
-+ id: 80768151 (number, required) - identificatore notifica
-+ priority: 4 (number, required) - priorità di notifica
-+ shortName: Coda su A1 (string, required) - nome notifica
-+ text: Si prevede una coda di... (string, required) - descrizione
-+ creationTS: `2018-11-05T19:04:15.735+0000` (string) - data di generazione della notifica
-+ mainTS: `2018-11-05T30:04:15.735+0000` (string) - data di inizio (evento o altro)
-+ order: 4 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
-+ group: traffico (string, required) - categoria della notifica
-+ actionCategory: clicca qui (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
-+ actionActivityId: 123 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
-+ actionLink:  https://www.autostrade.it (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
-
-### NotificationRes1
-
-+ id: 123345678 (number, required) - identificatore notifica
-+ priority: 1 (number, required) - priorità di notifica
++ id: 123 (number, required) - identificatore notifica
++ priority: 10 (number, required) - priorità di notifica
 + shortName: Emergenza: incendio (string, required) - nome notifica
 + text: L'incendio ha colpito il settore... (string, required) - descrizione
 + creationTS: `2018-11-05T19:04:15.735+0000` (string) - data di generazione della notifica
@@ -683,17 +737,68 @@ Se l'id passato non esiste ritorna un errore.
 + order: 1 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: emergenza (string, required) - categoria della notifica
 
+### NotificationRes1
+
++ id: 124 (number, required) - identificatore notifica
++ priority: 30 (number, required) - priorità di notifica
++ shortName: Coda su A1 (string, required) - nome notifica
++ text: Si prevede una coda di... (string, required) - descrizione
++ creationTS: `2018-11-05T19:04:15.735+0000` (string) - data di generazione della notifica
++ mainTS: `2018-11-05T30:04:15.735+0000` (string) - data di inizio (evento o altro)
++ order: 2 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
++ group: traffico (string, required) - categoria della notifica
++ actionActivityId: 319 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
++ actionCategory: GOTO (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
++ actionLink:  https://www.autostrade.it (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
+
+### NotificationRes2
+
++ id: 125 (number, required) - identificatore notifica
++ priority: 30 (number, required) - priorità di notifica
++ shortName: Messaggio da Gigi (string, required) - nome notifica
++ text: Andiamo insieme al concerto di Gianni Morandi? (string, required) - descrizione
++ creationTS: `2018-11-05T19:15:15.730+0000` (string) - data di generazione della notifica
++ mainTS: `2018-11-05T30:15:15.735+0000` (string) - data di inizio (evento o altro)
++ order: 3 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
++ group: traffico (string, required) - categoria della notifica
++ actionActivityId: 320 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
++ actionCategory: REPLY (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
+
+### NotificationRes3
+
++ id: 126 (number, required) - identificatore notifica
++ priority: 30 (number, required) - priorità di notifica
++ shortName: Match Artemio Franchi (string, required) - nome notifica
++ text: Partecipa al match Fiorentina-Milan (string, required) - descrizione
++ creationTS: `2017-11-05T19:45:30.730+0000` (string) - data di generazione della notifica
++ mainTS: `2018-04-05T15:30:00.735+0000` (string) - data di inizio (evento o altro)
++ order: 4 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
++ group: sport (string, required) - categoria della notifica
++ actionActivityId: 321 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
++ actionCategory: PARTECIPATE (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
 
 
+### NotificationActionReplyReq
++ actionValue: Certo, Morandi è uno dei miei cantanti preferiti! (string, optional) - messaggio di reply
 
-### NotificationActionReq
-+ body: param1, param2, param3 (string, optional) - parametri da passare all'azione
+### NotificationActionPartecipateYesReq
++ actionValue: 1 (string, optional) - utente partecipante
 
-### NotificationActionRes
-+ id: 10 (number, required) - identificatore della notification action passata in input
-+ body: param1 param2 param3 (string, optional) - parametri di input della action passati nella `request`
+### NotificationActionGoToRes
++ id: 10 (number, required) - identificatore della notification action (medesima passata in input)
++ notificationId: 124 (number, optional) - id della action associata all'azione
++ actionLink:  https://www.autostrade.it (string, optional) - link che azione GOTO permette di aprire
 
+### NotificationActionReplyRes
++ id: 10 (number, required) - identificatore della notification action (medesima passata in input)
++ notificationId: 125 (number, optional) - id della action associata all'azione
++ senderDeviceToken: `db4gtcEJNfM:APA91bHHOnGze8z5AyeBbNSI_dXYfZZytOEdW44Ipd4z91IL4GH9A28BhN-VoZo9ZhgOn-iwEbfrGDo3AiGvzwksvnKsdV961J2giQ6I5rZ8YspzvGYEtN8y2szn1AhlTNhSMH_24re10` (string, required) - device token del mittente del messaggio al quale si risponde
++ actionValue: Certo, Morandi è uno dei miei cantanti preferiti! (string, optional) - messaggio di reply
 
+### NotificationActionPartecipateYesRes
++ id: 10 (number, required) - identificatore della notification action (medesima passata in input)
++ notificationId: 126 (number, optional) - id della action associata all'azione
++ actionValue: 1 (string, optional) - stringa indicante partecipazione
 
 ### FacilityRes
 + id: 80677375 (number, required) - identificativo dell'impianto
@@ -818,7 +923,7 @@ con `category:help`.
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
 + isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
 + isGeneric: false (boolean, required) - se il servizio è generico
-+ category: food (string, required) tipologia di servizio
++ category: LOCATION (string, required) tipologia di servizio
 
 ### ServiceSummaryRes1
 + id: 457 (number, required) - identificatore del servizio
@@ -827,7 +932,16 @@ con `category:help`.
 + text: Distributore automaticoServices (string, optional) - descrizione del servizio
 + isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
 + isGeneric: false (boolean, required) - se il servizio è generico
-+ category: food (string, required) tipologia di servizio
++ category: MOBILITY (string, required) tipologia di servizio
+
+### ServiceSummaryRes2
++ id: 458 (number, required) - identificatore del servizio
++ shortName: Servizio di vigilanza (string, required) - nome del servizio
++ pic: `vigilanza` (string, required) - uuid immagine (icona) rappresentante il servizio
++ text: Servizio di vigilanza descrizione (string, optional) - descrizione del servizio
++ isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
++ isGeneric: false (boolean, required) - se il servizio è generico
++ category: SECURITY (string, required) tipologia di servizio
 
 ### ServiceDetailRes
 + id: 87654321 (number, required) - identificatore del servizio
@@ -836,7 +950,7 @@ con `category:help`.
 + text: Caffè, tavola calda (string, optional) - descrizione del servizio
 + isActive: true (boolean, required) - se il servizio è attivo (operativo o meno)
 + isGeneric: false (boolean, required) - se il servizio è generico
-+ category: food (string, required) - categoria di appartenenza del servizio
++ category: FOOD (string, required) - categoria di appartenenza del servizio
 + agendaId: 12432543 (number, optional) - idenitficatore del calendario riferito al servizio
 + action: (ActionRes)
 + privacyId: 10 (number, required) - privacy richiesta per il servizio
@@ -846,7 +960,7 @@ Services
 + shortName: Carabinieri (string, required) - nome del servizio
 + command: tel (string, required) comando eseguito, tipo di action
 + data: 
-    + phone: 118 (string, required) dati associati al comando
+    + phone: 987 (string, required) dati associati al comando 
 
 
 ### PoiServiceRes
