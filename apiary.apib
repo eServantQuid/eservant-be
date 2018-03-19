@@ -295,7 +295,7 @@ Ritorna il dettaglio della facility identificata da `id` in input.
 
 + Response 200 (application/json)
 
-    + Attributes (CEFacilityRes)
+    + Attributes (CEFacilityDetailRes)
         
 + Response 500 (application/json)
 
@@ -323,7 +323,8 @@ allo user, specificato da `username`. Ritorna la lista degli eventi associati al
 
 + Response 200 (application/json)
 
-    + Attributes (CEEventListRes)
+    + Attributes (
+    )
     
 + Response 500 (application/json)
 
@@ -571,6 +572,10 @@ Se l'id passato non esiste ritorna un errore.
 + metadata (MessagesSuccess)
 + payload (array[FacilityRes, FacilityRes1])
 
+### CEFacilityDetailRes
++ metadata (MessagesSuccess)
++ payload (FacilityDetailRes)
+
 ### CEAgendaRes
 + metadata (MessagesSuccess)
 + payload (array[AgendaRes])
@@ -804,29 +809,42 @@ Se l'id passato non esiste ritorna un errore.
 + id: 80677375 (number, required) - identificativo dell'impianto
 + shortName: Stadio Artemio Franchi (string, required) - nome impianto
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
-+ text: stadio di Firenze (string, required) - descrizione dell'impianto
++ text: Stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
-+ creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione impianto
-+ pof: (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois (array[id1, id2]) 
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
++ facilitiesAggregator: (array[enum[string]], required) - aggregatori di eventi
+    + Members
+        + `SPORT`
+        + `MUSIC`
 
 ### FacilityRes1
 + id: 98765432 (number, required) - identificativo dell'impianto
 + shortName: PIN (string, required) - nome impianto
 + pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
++ text: Polo universitario (string, required) - descrizione dell'impianto
++ owner: PIN (string, required) - intestatario dell'impianto
++ facilitiesAggregator: (array[enum[string]], required) - aggregatori di eventi
+    + Members
+rnate        + `MUSIC`
+
+### FacilityDetailRes
++ id: 80677375 (number, required) - identificativo dell'impianto
++ shortName: Stadio Artemio Franchi (string, required) - nome impianto
++ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, required) - uuid ad immagine impianto in NAS (Network Attached Storage)
 + text: stadio di Firenze (string, required) - descrizione dell'impianto
 + owner: Pippo (string, required) - intestatario dell'impianto
 + creationTS: `2018-09-01T10:22:43.235+0000` (string, required) - data generazione impianto
-+ pof : (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
-+ pois: (array[id1, id2])
-+ facilitiesAggregator: (array[FacilityAggregatorRes, FacilityAggregatorRes1], required) - aggregatori Facility
++ pof: (PofRes, required) - POI of facility, poi che coincide con sede legale della facility
++ pois (array[id1, id2]) 
++ facilitiesAggregator: (array[enum[string]], required) - aggregatori di eventi
+    + Members
+        + `SPORT`
+        + `MUSIC`
 
-### FacilityAggregatorRes
+### FacilityAggregatorRes_obsoleto
 + id: 1 (number, required) - identificativo dell'aggregatore
 + type: SPORT (string, required) - tipo dell'aggregatore
 
-### FacilityAggregatorRes1
+### FacilityAggregatorRes1_obsoleto
 + id: 2 (number, required) - identificativo dell'aggregatore
 + type: MUSIC (string, required) - tipo dell'aggregatore
 
