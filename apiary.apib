@@ -135,7 +135,7 @@ Ritorna i dati dell'evento appena associato.
 
  + Attributes (CE230Error)
 
-## /core/share/events/{id}/users/{username}
+## /core/share-events
 
 [***STABLE***]
 
@@ -155,12 +155,14 @@ I parametri in input *necessari* sono:
    
     + username: cj@quidinfo.it (string, required) - identificativo dell'utente che esegue la 
                                                     condivisione
+    + socialName: facebook (string, required)  - social su cui condividere                                              
                                                     
 + Request (application/json)
 
     + Parameters
         + username: cj@quidinfo.it 
         + id: 80677375
+        + socialName: facebook
 
     + Attributes(CESocialNameReq)
     
@@ -189,7 +191,7 @@ Ciascuna notifica ha:
     * **10**: grave;
     * **20**: intermedio;
     * **30**: basso.
-    * `order`: (number, required) indica l'ordinamento in cui visualizzare la notifica. Maggiore è questo intero più recente è la notifica, l’ultima rimane sempre più in alto.
+* `order`: (number, required) indica l'ordinamento in cui visualizzare la notifica. Maggiore è questo intero più recente è la notifica, l’ultima rimane sempre più in alto.
 * `actionActivityId`: (string, optional), identificativo dell'azione riferibile alla notifica, è utile nel chiamare il servizio `/core/notification-actions/{id}`.
 * `actionCategory`: (string, optional) **required** se è definito `actionActivityId`. Rappresenta il tipo di azione associabile alla notifica tra le seguenti:
     * **GOTO**: notifica che visualizza bottone per apertura di un link;
@@ -197,6 +199,8 @@ Ciascuna notifica ha:
     * **REPLY**: notifica che visualizza bottone per rispondere a messaggio;
 
 * `actionLink`: (string, optional), link da aprire quando `actionCategory` è **GOTO**.
+
+* `group`: (string, optional), rappresenta il topic di Firebase. Un topic associato ad una notifica è l'insieme dei device token a cui verrà inviata la notifica.
 
 + Response 200 (application/json)
 
@@ -332,14 +336,14 @@ allo user, specificato da `username`. Ritorna la lista degli eventi associati al
 
 # Group Agenda
 
-## /core/agenda/events/{id}
-
-[***STABLE***]
+## /core/agenda/events/{eventId}
 
 ### GET
 
+**TODO**: in revisione
+
 Restituisce il programma di un evento.
-Il campo 'id' nella request è obbligatoria.
+Il campo 'idEvent' nella request è obbligatoria.
 
 Il programma dell'evento è formato da:
 * Una data di inizio e una data di fine espresso nel formato ISO-8601 dove è valorizzata solo la data e non l'orario,
@@ -359,7 +363,7 @@ Il programma dell'evento è formato da:
 
 + Request (application/json)
     + Parameters
-        + id: 24146414 (number, required)
+        + idEvent: 24146414 (number, required)
 
 + Response 200 (application/json)
 
@@ -368,6 +372,13 @@ Il programma dell'evento è formato da:
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
+
+
+## /core/agenda/services/{eventId}
+
+### GET
+
+**TODO**: in definizione
 
 
 # Group Services
@@ -486,6 +497,36 @@ Restituisce i servizi associati all'evento corrispondente a `eventId`.
   
    + Attributes (CEServerError)
 
+
+# Group IBeacon
+
+## /core/ibeacons/device-identification/{deviceToken}
+
+
+### POST 
+
+* Questo servizio viene chiamato alla login per assegnare al device dell'utente la tripletta con i seguenti campi:
+  * **uuid**: stringa alfanumerica, per ora cablata,
+  * **major**: BigDecimal che rappresenta la categoria di device (es. 'SMARTPHONE', 'IBEACON',...),
+  * **minor**: id incrementale che insieme al major rappresenta un unico device
+
++ Parameters
+   + username (string, required) - identificativo dell'utente presente nel jwtToken
+   + deviceToken (string, required) - identificativo del telefono
+   
++ Request (application/json)
+    + Parameters
+        + username (string, required)
+        + deviceToken (string, required) 
+        
++ Response 200 (application/json)
+
+  + Attributes (CETriplettaRes)
+  
++ Response 500 (application/json)
+
+  + Attributes (CEServerError)
+
 # Group News  
 
 ## /core/news
@@ -599,6 +640,10 @@ Se l'id passato non esiste ritorna un errore.
 ### CENewsListRes
 + metadata (MessagesSuccess)
 + payload (NewsRes)
+
+### CETriplettaRes
++ metadata (MessagesSuccess)
++ payload (TriplettaRes)
 
 
 ### CEPositionRes
@@ -722,6 +767,12 @@ Se l'id passato non esiste ritorna un errore.
 + poiType: 1232 (number, required) - tipologia di POI
 
 
+
+### TriplettaRes
++ uuid: 7da8f5d4-5993-4775-90ec-65c91d2dcaf9 (string, required) stringa alfanumerica, per ora cablata,
++ major: 1.00 (number, required) BigDecimal che rappresenta la categoria di device ,
++ minor: 1 (number,required) id incrementale che insieme al major rappresenta un unico device
+
 ### PositionRes
 + id: 378249 (number, required) - id del poi 
 + latitude: 27.3 (number, required) - latitudine
@@ -753,7 +804,7 @@ Se l'id passato non esiste ritorna un errore.
 + order: 2 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: traffico (string, required) - categoria della notifica
 + actionActivityId: 319 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
-+ actionCategory: GOTO (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
++ actionCategory: GOTO (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link
 + actionLink:  https://www.autostrade.it (string, optional) - eventuale link da aprire sul modulo web interno o direttamente su browser, dipende da come funziona ionic
 
 ### NotificationRes2
@@ -765,9 +816,9 @@ Se l'id passato non esiste ritorna un errore.
 + creationTS: `2018-11-05T19:15:15.730+0000` (string) - data di generazione della notifica
 + mainTS: `2018-11-05T30:15:15.735+0000` (string) - data di inizio (evento o altro)
 + order: 3 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
-+ group: traffico (string, required) - categoria della notifica
++ receiverDeviceToken: 'db4gtcEJNfM:APA91bHHOnGze8z5AarBbNKU_dXYfZZytOEdW44Ipd4z91IL4GH9A28BhN-VoZo9ZhgOn-9pEbfrGDo3AiGvzwkKvnKsdV961J2giQ6I5rZ8' (string, optional) - token del destinatario della notifica 
 + actionActivityId: 320 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
-+ actionCategory: REPLY (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
++ actionCategory: REPLY (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link
 
 ### NotificationRes3
 
@@ -780,7 +831,7 @@ Se l'id passato non esiste ritorna un errore.
 + order: 4 (number, required) - mappa un certo tipo di ordinamento per la visualizzazione delle notifiche da definire meglio con FE
 + group: sport (string, required) - categoria della notifica
 + actionActivityId: 321 (number, optional) - serve per richiamare il servizio /core/notificationAction/{id} che riporta la risposta all'azione associata alla notifica
-+ actionCategory: PARTECIPATE (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio o link TODO tipizzare
++ actionCategory: PARTECIPATE (string, optional) - azione associabile alla notifica, ad esempio rispondi si o reply ad un messaggio 
 
 
 ### NotificationActionReplyReq
@@ -872,22 +923,22 @@ rnate        + `MUSIC`
 
 ### AgendaRes 
 + id: 18869708 (number, required) - identificatore del programma
-+ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
-+ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ startDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
 + timeSlots: (array[TimeSlotRes, TimeSlotRes1]) - time slot riferibili al calendario corrente
 
 
 ### AgendaExceptionRes 
 + id: 28869708 (number, required) - identificatore del programma
-+ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
-+ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ startDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
 + exception: eccezione che cancella l'intero programma (string, required)
 + fatherId: 18869708 (number, required) - identificatore del programma su cui generare l'eccezione
 
 ### AgendaServiceRes 
 + id: 78869708 (number, required) - identificatore del programma
-+ startDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
-+ endDate: `2017-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
++ startDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) inizio evento ISO datetime
++ endDate: `2019-04-14T08:21:45.484+0000` (string, required) - data (no time) fine evento ISO datetime
 + dayOfWeek: MO (string, optional) valorizzato se evento ricorrente
 + exception: chiusura straordinaria (string, optional) - eventuale eccezione sul calendario
 + fatherId: 8492032 (number, optional) - id di una agenda da cui deriva questa. valorizzato sse valorizzata l'eccezione
@@ -1035,7 +1086,7 @@ Services
 + testo: string, required
 
 ### SocialNameReq
-+ socialName: FACEBOOK (string, required) - nome del social
+
 
 ### CE230Error
 - metadata (object)
