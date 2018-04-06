@@ -568,7 +568,7 @@ Se l'id passato non esiste ritorna un errore.
 
 ### CENewsListRes
 + metadata (MessagesSuccess)
-+ payload (NewsRes)
++ payload (array[NewsRes, NewsRes1])
 
 ### CETriplettaRes
 + metadata (MessagesSuccess)
@@ -939,10 +939,19 @@ Services
 + body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fringilla nunc id elementum volutpat. Maecenas at mauris a lorem placerat tincidunt nec id orci. Cras dolor ligula, feugiat sed gravida iaculis, blandit et turpis. Vivamus id rhoncus lorem, id commodo leo. Praesent ornare pretium tortor ac auctor. Phasellus sagittis, massa in mattis tincidunt, massa metus ullamcorper diam, malesuada dapibus magna mauris et enim. Praesent mi quam, volutpat id consectetur sit amet, ullamcorper non ex. Duis dignissim quis ipsum ut pellentesque. Fusce consequat eros vitae erat lobortis elementum. (string, required) Corpo
 + category: (enum[string], required) - categoria
     + Members
-        + `DENY`
+        + `DENY`News
         + `MUSICA_CLASSICA`
         + `MUSICA_ROCK`
 
+### NewsRes1
++ id: 3 (number, required) - id news
++ shortName: Estensione temporanea area pedonale di via Cavour (string, required) Titolo
++ text: Estensione temporanea dell’area pedonale di via Cavour alla piazza Ricca in occasione delle festività natalizie e di capodanno (string, optional) Sottotitolo
++ pic: `06d7767b-81ae-480b-849b-0XXXXXae1918.jpeg` (string, required) - uuid ad immagine news
++ body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fringilla nunc id elementum volutpat. Maecenas at mauris a lorem placerat tincidunt nec id orci. Cras dolor ligula, feugiat sed gravida iaculis, blandit et turpis. Vivamus id rhoncus lorem, id commodo leo. Praesent ornare pretium tortor ac auctor. Phasellus sagittis, massa in mattis tincidunt, massa metus ullamcorper diam, malesuada dapibus magna mauris et enim. Praesent mi quam, volutpat id consectetur sit amet, ullamcorper non ex. Duis dignissim quis ipsum ut pellentesque. Fusce consequat eros vitae erat lobortis elementum. (string, required) Corpo
++ category: (enum[string], required) - categoria
+    + Members
+        + `DENY`
 
 ### ToKnow
 + id: 37827387 (string, required) - id della info utile 
