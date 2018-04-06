@@ -52,6 +52,34 @@ Tra le informazioni del dettaglio evento si hanno:
  + Attributes (CE230Error)
 
 
+
+## /core/events/{id}/users
+
+### GET 
+
+Ritorna la lista delle persone che partecipano ad un evento specifico (lista **""chi partecipa""**).
+
+
+Il parametro *necessario* è:
+* `id`: identificativo dell'evento del quale ci interessa sapere i partecipanti.
+
+
++ Parameters
+    + id (number, required) - identificativo dell'evento
+  
++ Request (application/json)
+    + Parameters
+        + id: 1
+        
++ Response 200 (application/json)
+   
+   + Attributes (CEUserListInEventRes)
+
++ Response 500 (application/json)
+    
+   + Attributes (CEServerError)    
+
+
 ## /core/events/users/{username} 
 
 [***STABLE***]
@@ -140,6 +168,8 @@ Ritorna i dati dell'evento appena associato.
 [***STABLE***]
 
 ### PUT
+
+ *Dopo confronto con Fabiano del 06 Marzo questa API non è attualmente usata al Front-end, in futuro forse lo sarà*
 
 Effettua condivisione dell'evento `id` sul profilo social di un utente.
 
@@ -253,23 +283,26 @@ allo user, specificato da `username`. Ritorna la lista degli eventi associati al
 
 ### GET
 
-**TODO**: in revisione
+Restituisce il programma di un evento in forma di **`agenda`**.
 
-Restituisce il programma di un evento.
 Il campo 'idEvent' nella request è obbligatoria.
 
-Il programma dell'evento è formato da:
-* Una data di inizio e una data di fine espresso nel formato ISO-8601 dove è valorizzata solo la data e non l'orario,
-* Una lista di TimeSlots che rappresentano le varie attività svolte in tutta la durata dell'evento.
-  * **`TimeSlot`**, singola attività nel programma di un evento
-    + `timeFrom`: 2017-04-14T08:21:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
-    + `timeTo`: 2017-04-14T08:23:45.484+0000 (string, required) - qui è l'orario ad essere valorizzato
+L'`agenda` definisce un periodo, all'interno del quale sono presenti dei **`TimeSlot`**. E' possibile definire sotto-periodi "di eccezione" ad `agenda` e `TimeSlot`
+definendo delle **exception** dello stesso tipo.
+
+L'`agenda` è costituita da:
+* **`startDate`** e **`endDate`** (string, required): Date di inizio e fine in formato ISO-8601. E' valorizzata solo la data e non l'orario
+* **`timeSlots`**: lista di `TimeSlot` rappresentanti le attività svolte nel periodo dell'evento
+  * **`TimeSlot`**: singola attività nel programma di un evento
+    + `timeFrom`: 2017-04-14T08:21:45.484+0000 (string, required) - valorizzato solo l'orario
+    + `timeTo`: 2017-04-14T08:23:45.484+0000 (string, required) - valorizzato solo l'orario
+    + `dayOfWeek` (string, optional): indica uno timeSlot ricorrente. Valori possibili: `SU`, `MO`, `TU`, `WE`, `TH`, `FR`, `SA`
     + `shortName`: corso di cucina (string, required) - nome attività
     + `text`: corso di cucina giapponese,... (string, optional) - descrizione
     + `pic`: 648521f1-fe15-4408-b489-0cecbcd97e76.png (string, optional) - immagine attività
-  * Se devo esprimere un'eccezione su un `TimeSlot` allora nella lista dei TimeSlot ne sarà presente anche uno con `exception` e `fatherId` valorizzati, dove `fatherId` è l'id del `TimeSlot` in cui si verifica l'eccezione e `exception` è una stringa che spiega l'eccezione,
-* `dayOfWeek` che se valorizzato indica che l'evento è ricorrente,
-* `fatherId` ed `exception` che sono valorizzati sse devo esprimere un'eccezione sul programma, sarà quindi presente un secondo programma che avrà come `fatherId` il programma in cui va generata l'eccezione.
+    + `exception` e `fatherId` (optional): indicano che il `TimeSlot` è una eccezione a un altro `TimeSlot`. `exception`, stringa, spiega l'eccezione, `fatherId` il `TimeSlot` a cui si applica l'eccezione
+* `dayOfWeek` (string, optional): indica che l'agenda è ricorrenten
+* `exception` e `fatherId` (optional): indicano che l'`agenda` è una eccezione al programma di un'altra `agenda`. `exception`, stringa, spiega l'eccezione, `fatherId` l'`agenda` a cui si applica l'eccezione. Sarà quindi presente una seconda agenda che avrà come `fatherId` il programma in cui va generata l'eccezione
 
 + Parameters
     + id: 24146414 (number, required) - identificativo del programma di evento che si necessita 
@@ -285,7 +318,6 @@ Il programma dell'evento è formato da:
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
-
 
 ## /core/agenda/services/{eventId}
 
@@ -541,6 +573,10 @@ Se l'id passato non esiste ritorna un errore.
 ### CETriplettaRes
 + metadata (MessagesSuccess)
 + payload (TriplettaRes)
+
+### CEUserListInEventRes
++ metadata (MessagesSuccess)
++ payload (array[ UsersFriendsInEventRes, UsersFriendsInEventRes])
 
 
 ### CEPositionRes
@@ -880,8 +916,20 @@ Services
 + poiType: 1232 (number, required) - tipologia di POI
 
 ### UserFacility
-+ facilityId : (FacilityRes, required) - identificatore facility
++ facilityId: (FacilityRes, required) - identificatore facility
 + userId : mario.rossi@utente.it (string, required) - id utente
+
+### UsersInEventRes
++ username: g.tassoni@quidinfo.it (string, required) - identificativo utente
++ firstname: giovanni (string, required) - nome utente partecipante
++ lastname: tassoni (string, required) - cognome utente partecipante
++ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, optional) - uuid immagine utente
+
+
+### UsersFriendsInEventRes
++ user(UsersInEventRes)
++ isFriend: true (boolean,required) - booleano che mi dice se l'utente che partecipa è mio amico 
++ affinity: 75 (number, required) - percentuale affinità 
 
 ### NewsRes
 + id: 2 (number, required) - id news
