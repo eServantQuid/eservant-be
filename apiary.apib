@@ -53,7 +53,7 @@ Tra le informazioni del dettaglio evento si hanno:
 
 
 
-## /core/events/{id}/users
+## /core/events/{id}/partecipants
 
 ### GET 
 
@@ -133,6 +133,31 @@ I parametri in input *necessari*, in questo caso **filtri**, sono:
 
  + Attributes (CE230Error)
 
+## /core/events/aggregators
+
+### GET
+
+Restituisce la lista degli aggregatori di eventi.
+
+Gli aggregatori attualmente previsti, lista parziale dei definitivi, sono:
+* SPORT
+* EVENTO_URBANO
+* STUDIO
+* MUSICA
+* COMMERCIO
+* TEMPO_LIBERO
+* CULTURA
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+ + Attributes (CEEventAggregatorListRes)
+
++ Response 500 (application/json)
+
+ + Attributes (CE230Error)
+
 ## /core/associate/events/{id}/users/{username}
 
 [***STABLE***]
@@ -162,6 +187,28 @@ Ritorna i dati dell'evento appena associato.
 + Response 500 (application/json)
 
  + Attributes (CE230Error)
+
+### DELETE
+
+Effettua operazione **rimuovi da "I miei Eventi"**
+
+
++ Parameters
+    + id: 80677375 (number, required) - identificativo dell'evento che si intende associare all'utente
+   
+    + username: cj@quidinfo.it (string, required) - identificativo dell'utente che si intende 
+                                                    associare all'evento
+    
++ Request (application/json)
+
+    + Parameters
+        + username: cj@quidinfo.it 
+        + id: 80677375
+        
++ Response 200 (application/json)
+   
+   + Attributes (CEDeleteFollow)
+
 
 ## /core/share-events
 
@@ -362,7 +409,7 @@ Ogni servizio ha:
       + `command`: sms (string, required)
       + `data`:
           + `phone`: 366654 (string, required)
-          + `messaggio`: Ciao, sono al concerto di Gianni Morandi! (string, required)
+          + `text`: Ciao, sono al concerto di Gianni Morandi! (string, required)
    * **surf**, apri il browser su pagina web
       + `command`: surf (string, required)
       + `data`:
@@ -472,7 +519,89 @@ Restituisce i servizi associati all'evento corrispondente a `eventId`.
 
   + Attributes (CEServerError)
 
-# Group News  
+## /core/ibeacons/regions
+
+
+### GET
+
+UUID delle regioni considerate per iBeacon.
+
++ Response 200 (application/json)
+
+  + Attributes (CEUuidRegionsRes)
+  
++ Response 500 (application/json)
+
+  + Attributes (CEServerError)
+
+
+# Group GruppiEvento
+
+## /core/groups/events/{id}
+
+### GET
+
+Ritorna tutti i gruppi relativi ad un determinato evento. 
+ 
+ + Parameters
+   + eventId (number, required) - identificativo evento a cui associare gruppo
+
+
+ + Request (application/json)
+    + Parameters
+       + eventId (number, required)
+
+ + Response 200 (application/json)
+   + Attributes (CEArrayGroupRes)
+ 
+ + Response 500 (application/json)
+   + Attributes (CEServerError)
+
+### POST
+
+Creazione nuovo gruppo associato ad un evento.
+Lo username viene preso attraverso il jwt nell'header e quindi trasparente al frontend.
+
+ + Parameters
+   + eventId (number, required) - identificativo evento a cui associare gruppo
+
+
+ + Request (application/json)
+    + Parameters
+       + eventId (number, required)
+
+ + Response 201 (application/json)
+   + Attributes (CEGroupRes)
+ 
+ + Response 500 (application/json)
+   + Attributes (CEServerError)
+
+
+## /core/groups/{id}
+
+### DELETE
+
+Eliminazione gruppo. **Solo l'owner del gruppo può cancellarlo**.
+Lo username viene preso attraverso il jwt nell'header e quindi trasparente al frontend.
+
+ + Parameters
+   + eventId (number, required) - identificativo evento a cui associare gruppo
+
+
+ + Request (application/json)
+    + Parameters
+       + eventId (number, required)
+
+ + Response 201 (application/json)
+   + Attributes (CEGroupRes)
+ 
+ + Response 500 (application/json)
+   + Attributes (CEServerError)
+
+
+# Group News_migrate
+
+News: servizi migrati da /core/news a /news, nuovo microservizio
 
 ## /core/news
 
@@ -514,6 +643,14 @@ Se l'id passato non esiste ritorna un errore.
 
 ## Data Structures
 
+### CEArrayGroupRes
++ metadata (MessagesSuccess)
++ payload (array[GroupRes, GroupRes])
+
+### CEGroupRes
++ metadata (MessagesSuccess)
++ payload (GroupRes)
+
 ### CEEventReq
 + metadata (MessagesSuccess)
 + payload (EventShareReq)
@@ -521,6 +658,12 @@ Se l'id passato non esiste ritorna un errore.
 ### CEEventRes
 + metadata (MessagesSuccess)
 + payload (EventRes)
+
+
+### CEEventAggregatorListRes
++ metadata (MessagesSuccess)
++ payload (array[EventAggregator2Res1, EventAggregator2Res2, EventAggregator2Res3])
+
 
 ### CEEventListRes
 + metadata (MessagesSuccess)
@@ -574,10 +717,19 @@ Se l'id passato non esiste ritorna un errore.
 + metadata (MessagesSuccess)
 + payload (TriplettaRes)
 
+### CEUuidRegionsRes
++ metadata (MessagesSuccess)
++ payload (UuidRegionsRes)
+
 ### CEUserListInEventRes
 + metadata (MessagesSuccess)
 + payload (array[ UsersFriendsInEventRes, UsersFriendsInEventRes])
 
+
+
+### CEDeleteFollow
++ metedata (MessagesSuccess)
++ payload ()
 
 ### CEPositionRes
 + metadata (MessagesSuccess)
@@ -622,6 +774,25 @@ Se l'id passato non esiste ritorna un errore.
 + aggregationFields: (array[enum[string]], required) - aggregatori di eventi
     + Members
         + `VIVI_IL_PIN`
+
+SPORT, EVENTO_URBANO, STUDIO, MUSICA, COMMERCIO, TEMPO_LIBERO, CULTURA
+
+### EventAggregator2Res1
++ id : 1 (number, required) - id aggregatore
++ type : SPORT (string, required)
+
+### EventAggregator2Res2
++ id : 2 (number, required) - id aggregatore
++ type : EVENTO_URBANO (string, required)
+
+### EventAggregator2Res3
++ id : 3 (number, required) - id aggregatore
++ type : STUDIO (string, required)
+
+### EventAggregator2Res4
++ id : 4 (number, required) - id aggregatore
++ type : COMMERCIO (string, required)
+
 
 ### EventSuggested
 + isFollow: true (boolean, required) - partecipazione dello user all'evento
@@ -675,6 +846,38 @@ Se l'id passato non esiste ritorna un errore.
 + eventType: educazione (string, required) - tipologia di evento
 + creationTS: `2018-09-01T10:22:43.235Z` (string, required) - data generazione evento
 
+
+### GroupRes
++ group
+   + name: Festa Scudetto Fiorentina (string, required) - nome del gruppo
+   + text: dopo una grande stagione... (string, optional) - descrizione gruppo
+   + affinityAverage: 1 (number, required) - affinità di gruppo che va da 0 a 1
+   + limitPeople: 4 (number, required) - se gruppo viaggio numero di posti, altrimenti settato a -1 
+   + type: TRAVEL_TOGETHER (string, required) - tipo di gruppo
+   + info: (GroupDetail, required) - info sul gruppo
+   + partecipants: (array[PartecipantRes], required) - partecipanti al gruppo
+
+### GroupDetail
++ vehicle: Polo (string, optional) - modello auto
++ myOwnVehicle: false (boolean, optional) - se la macchina appartiene all'owner del gruppo
++ startCity: Firenze (string, required)
++ startAddress: via Pratese, 126 (string, required)
++ endCity: Lucca (string, optional)
++ endAddress: via Firenze, 10 (string, optional)
++ startDate: `2018-09-01T10:22:43.235Z` (string, required)
++ tolerance: 15 (number, optional)
++ placesNumber: 4 (number, required)
+
+
+### PartecipantRes
++ userId: eservant@quidinfo.it (string, required)
++ owner: true (boolean, required)
++ driver: false (boolean, required)
++ accepted: false (boolean, required)
++ invited: false (boolean, required)
+
+
+
 ### PoiEvFacRes
 + id: 1 (number, required) - id Point Of Interest
 + shortName: Entrata 1 (string, required) - nome POI
@@ -706,6 +909,11 @@ Se l'id passato non esiste ritorna un errore.
 + major: 1.00 (number, required) BigDecimal che rappresenta la categoria di device ,
 + minor: 1 (number,required) id incrementale che insieme al major rappresenta un unico device
 
+### UuidRegionsRes
++ uuids: (array[string]) uuid regions che device ha interesse a monitorare per la posizione
+    + Members
+        + `acfd065e-c3c0-11e3-9bbe-1a514932ac77`
+        
 ### PositionRes
 + id: 378249 (number, required) - id del poi 
 + latitude: 27.3 (number, required) - latitudine
@@ -919,17 +1127,8 @@ Services
 + facilityId: (FacilityRes, required) - identificatore facility
 + userId : mario.rossi@utente.it (string, required) - id utente
 
-### UsersInEventRes
-+ username: g.tassoni@quidinfo.it (string, required) - identificativo utente
-+ firstname: giovanni (string, required) - nome utente partecipante
-+ lastname: tassoni (string, required) - cognome utente partecipante
-+ pic: `06d7767b-81ae-480b-849b-0340f9ae1918.jpeg` (string, optional) - uuid immagine utente
-
-
 ### UsersFriendsInEventRes
-+ user(UsersInEventRes)
-+ isFriend: true (boolean,required) - booleano che mi dice se l'utente che partecipa è mio amico 
-+ affinity: 75 (number, required) - percentuale affinità 
++ username: g.tassoni@quidinfo.it (string, required) - identificativo utente
 
 ### NewsRes
 + id: 2 (number, required) - id news
